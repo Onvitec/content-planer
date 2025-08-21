@@ -1,0 +1,528 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Social Media Content Planer</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        .calendar-grid { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 4px; }
+        .calendar-day { min-height: 120px; }
+        .modal-backdrop, .lightbox-backdrop, .confirmation-backdrop { transition: opacity 0.3s ease-in-out; }
+        .modal-content, .confirmation-content, .lightbox-content { transition: transform 0.3s ease-in-out; }
+        .status-badge { padding: 2px 8px; border-radius: 9999px; font-size: 0.75rem; font-weight: 600; text-transform: uppercase; }
+        .status-entwurf { background-color: #e5e7eb; color: #4b5563; }
+        .status-freigabe { background-color: #fef08a; color: #854d0e; }
+        .status-geplant { background-color: #bbf7d0; color: #166534; }
+        .status-veroeffentlicht { background-color: #d8b4fe; color: #581c87; }
+        .task-item input[type="checkbox"]:checked + span { text-decoration: line-through; color: #9ca3af; }
+        .carousel-thumbnail.active { border-color: #3b82f6; opacity: 1; }
+        .kanban-column { min-height: 400px; }
+        .kanban-card.dragging { opacity: 0.5; transform: rotate(3deg); }
+        .kanban-column.drag-over { background-color: #f3f4f6; }
+    </style>
+</head>
+<body class="bg-gray-100 font-sans text-gray-800 antialiased">
+
+    <!-- Authentifizierungs-Ansicht -->
+    <div id="auth-view" class="min-h-screen flex items-center justify-center">
+        <div class="max-w-md w-full bg-white p-8 rounded-2xl shadow-lg">
+            <div>
+                <h2 id="auth-title" class="text-center text-3xl font-bold text-gray-900">Anmelden</h2>
+                <p id="auth-subtitle" class="mt-2 text-center text-sm text-gray-600">
+                    oder <button id="switch-auth-mode" class="font-medium text-blue-600 hover:text-blue-500">erstelle einen neuen Account</button>
+                </p>
+            </div>
+            <form id="auth-form" class="mt-8 space-y-6">
+                <div class="rounded-md shadow-sm -space-y-px">
+                    <div>
+                        <label for="email-address" class="sr-only">E-Mail Adresse</label>
+                        <input id="email-address" name="email" type="email" autocomplete="email" required class="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm" placeholder="E-Mail Adresse">
+                    </div>
+                    <div>
+                        <label for="password" class="sr-only">Passwort</label>
+                        <input id="password" name="password" type="password" autocomplete="current-password" required class="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-b-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm" placeholder="Passwort">
+                    </div>
+                </div>
+                <p id="auth-error" class="text-sm text-red-600"></p>
+                <div>
+                    <button type="submit" id="auth-submit-btn" class="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                        Anmelden
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Hauptanwendung (initial versteckt) -->
+    <div id="app" class="container mx-auto p-4 md:p-8 hidden">
+        <header class="flex justify-between items-center mb-8">
+            <div class="text-left">
+                <h1 class="text-4xl font-bold text-gray-900">Content Planer</h1>
+                <p class="text-gray-600 mt-2">Angemeldet als: <span id="user-email" class="font-semibold"></span></p>
+            </div>
+            <button id="logout-btn" class="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded-lg">Abmelden</button>
+        </header>
+
+        <div class="flex items-center justify-between mb-6 bg-white p-4 rounded-2xl shadow-md">
+            <div id="monthControl" class="flex items-center">
+                <button id="prevMonthBtn" class="p-2 rounded-full hover:bg-gray-200 transition-colors">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" /></svg>
+                </button>
+                <h2 id="currentMonthYear" class="text-2xl font-semibold w-48 text-center"></h2>
+                <button id="nextMonthBtn" class="p-2 rounded-full hover:bg-gray-200 transition-colors">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" /></svg>
+                </button>
+            </div>
+            <div id="viewSwitcher" class="flex items-center gap-2 rounded-full bg-gray-200 p-1">
+                <button data-view="calendar" class="view-btn p-2 rounded-full transition-colors">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clip-rule="evenodd" /></svg>
+                </button>
+                <button data-view="board" class="view-btn p-2 rounded-full transition-colors">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path d="M2 4a1 1 0 011-1h2a1 1 0 011 1v12a1 1 0 01-1 1H3a1 1 0 01-1-1V4zM8 4a1 1 0 011-1h2a1 1 0 011 1v12a1 1 0 01-1 1H9a1 1 0 01-1-1V4zM15 3a1 1 0 00-1 1v12a1 1 0 001 1h2a1 1 0 001-1V4a1 1 0 00-1-1h-2z" /></svg>
+                </button>
+            </div>
+        </div>
+
+        <main id="mainViewContainer">
+             <div id="calendarView" class="bg-white p-2 sm:p-4 rounded-2xl shadow-lg"><div class="calendar-grid mb-2"><div class="text-center font-semibold text-gray-600 py-2">So</div><div class="text-center font-semibold text-gray-600 py-2">Mo</div><div class="text-center font-semibold text-gray-600 py-2">Di</div><div class="text-center font-semibold text-gray-600 py-2">Mi</div><div class="text-center font-semibold text-gray-600 py-2">Do</div><div class="text-center font-semibold text-gray-600 py-2">Fr</div><div class="text-center font-semibold text-gray-600 py-2">Sa</div></div><div id="calendarGrid" class="calendar-grid"></div></div>
+             <div id="boardView" class="hidden"><div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4"></div></div>
+        </main>
+    </div>
+
+    <!-- Modals -->
+    <div id="postModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50 opacity-0 pointer-events-none modal-backdrop"><div class="bg-white rounded-2xl shadow-2xl w-full max-w-3xl max-h-[90vh] flex flex-col modal-content transform scale-95"><div class="flex items-center justify-between p-6 border-b"><h3 class="text-2xl font-bold">Post Details</h3><button id="closeModalBtn" class="p-2 rounded-full hover:bg-gray-200 transition-colors"><svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg></button></div><div class="p-6 overflow-y-auto"><input type="hidden" id="postId"><input type="hidden" id="postDate"><div class="grid grid-cols-1 md:grid-cols-2 gap-6"><div><div class="mb-4"><label for="postTitle" class="block text-sm font-medium text-gray-700 mb-1">Titel</label><input type="text" id="postTitle" class="w-full border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500" placeholder="Kurzer Titel für die Kalenderansicht"></div><div class="mb-4"><label for="postStatus" class="block text-sm font-medium text-gray-700 mb-1">Status</label><select id="postStatus" class="w-full border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500"><option value="entwurf">Entwurf</option><option value="freigabe">Zur Freigabe</option><option value="geplant">Geplant</option><option value="veroeffentlicht">Veröffentlicht</option></select></div><div class="mb-4"><label class="block text-sm font-medium text-gray-700 mb-1">Bilder / Video</label><div id="carouselContainer" class="hidden relative w-full aspect-square bg-gray-100 rounded-lg flex items-center justify-center"><img id="carouselMainImage" src="" class="max-h-full max-w-full object-contain cursor-pointer" title="Klicken für Grossansicht"><button id="carouselPrevBtn" class="absolute left-2 top-1/2 -translate-y-1/2 bg-white/70 p-1 rounded-full shadow-md hover:bg-white transition-colors"><svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" /></svg></button><button id="carouselNextBtn" class="absolute right-2 top-1/2 -translate-y-1/2 bg-white/70 p-1 rounded-full shadow-md hover:bg-white transition-colors"><svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" /></svg></button><div id="carouselThumbnails" class="absolute bottom-2 left-1/2 -translate-x-1/2 flex gap-2 bg-black/50 p-1 rounded-full"></div></div><div id="uploadPlaceholder" class="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-md"><div class="space-y-1 text-center"><svg class="mx-auto h-12 w-12 text-gray-400" stroke="currentColor" fill="none" viewBox="0 0 48 48" aria-hidden="true"><path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" /></svg><div class="flex text-sm text-gray-600"><label for="postImage" class="relative cursor-pointer bg-white rounded-md font-medium text-blue-600 hover:text-blue-500 focus-within:outline-none"><span>Dateien hochladen</span><input id="postImage" type="file" class="sr-only" accept="image/*,video/*" multiple></label></div><p class="text-xs text-gray-500">Mehrere Bilder für Karussell möglich</p></div></div></div></div><div><label class="block text-sm font-medium text-gray-700 mb-2">Aufgaben-Checkliste</label><div id="taskListContainer" class="space-y-2 mb-3"></div><div class="flex gap-2"><input type="text" id="newTaskInput" placeholder="Neue Aufgabe hinzufügen..." class="flex-grow w-full border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500"><button id="addTaskBtn" class="bg-blue-100 text-blue-800 font-semibold px-4 py-2 rounded-lg hover:bg-blue-200 transition-colors">Add</button></div></div></div><div class="mt-6"><label for="postCaption" class="block text-sm font-medium text-gray-700 mb-1">Caption</label><textarea id="postCaption" rows="6" class="w-full border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500" placeholder="Schreibe hier deinen Post-Text..."></textarea></div><div class="mt-4"><label for="postHashtags" class="block text-sm font-medium text-gray-700 mb-1">Hashtags</label><input type="text" id="postHashtags" class="w-full border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500" placeholder="#planning #socialmedia ..."></div></div><div class="flex items-center justify-between p-6 border-t bg-gray-50 rounded-b-2xl"><button id="deletePostBtn" class="text-red-600 hover:text-red-800 font-semibold transition-colors">Post löschen</button><div><button id="cancelModalBtn" class="bg-white py-2 px-4 border border-gray-300 rounded-lg shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50">Abbrechen</button><button id="savePostBtn" class="ml-3 inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-lg text-white bg-blue-600 hover:bg-blue-700">Speichern</button></div></div></div></div>
+    <div id="confirmationModal" class="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center p-4 z-[100] opacity-0 pointer-events-none transition-opacity duration-300 confirmation-backdrop"><div class="bg-white rounded-2xl shadow-2xl w-full max-w-sm p-6 text-center transform scale-95 transition-transform duration-300 confirmation-content"><h4 id="confirmationTitle" class="text-lg font-bold mb-2">Aktion bestätigen</h4><p id="confirmationMessage" class="text-gray-600 mb-6">Möchtest du wirklich fortfahren?</p><div class="flex justify-center gap-4"><button id="confirmCancelBtn" class="bg-white py-2 px-6 border border-gray-300 rounded-lg font-medium text-gray-700 hover:bg-gray-50">Abbrechen</button><button id="confirmActionBtn" class="py-2 px-6 border border-transparent rounded-lg font-medium text-white">Bestätigen</button></div></div></div>
+    <div id="lightboxModal" class="fixed inset-0 bg-black/80 flex items-center justify-center p-4 z-[120] opacity-0 pointer-events-none transition-opacity duration-300 lightbox-backdrop" ><img id="lightboxImage" src="" class="max-h-[90vh] max-w-[90vw] object-contain lightbox-content"><button id="lightboxCloseBtn" class="absolute top-4 right-4 text-white p-2 bg-black/50 rounded-full hover:bg-black/80 transition-colors"><svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg></button></div>
+
+    <!-- Firebase SDKs -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
+        import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
+        import { getFirestore, collection, doc, addDoc, setDoc, deleteDoc, onSnapshot, query } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyCiCG2qt3N6-Dw8Py3zXAD-4wOML56sccM",
+            authDomain: "onvitec-content-planer.firebaseapp.com",
+            projectId: "onvitec-content-planer",
+            storageBucket: "onvitec-content-planer.firebasestorage.app",
+            messagingSenderId: "273056072477",
+            appId: "1:273056072477:web:56e9d5856a50144c2a97f4",
+            measurementId: "G-R71BDC8F11"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        // --- STATE & DOM ---
+        let currentDate = new Date();
+        let localPosts = [];
+        let unsubscribePosts = null; 
+        let initialPostState = null;
+        let confirmAction = null;
+        let currentCarouselIndex = 0;
+        let currentImageUrls = [];
+        let currentView = 'calendar';
+        let authMode = 'login';
+
+        const authView = document.getElementById('auth-view');
+        const mainAppView = document.getElementById('app');
+        const authForm = document.getElementById('auth-form');
+        const authError = document.getElementById('auth-error');
+        const authTitle = document.getElementById('auth-title');
+        const authSubtitle = document.getElementById('auth-subtitle');
+        const authSubmitBtn = document.getElementById('auth-submit-btn');
+        const userEmailEl = document.getElementById('user-email');
+        const logoutBtn = document.getElementById('logout-btn');
+        const calendarGrid = document.getElementById('calendarGrid');
+        const currentMonthYearEl = document.getElementById('currentMonthYear');
+        const prevMonthBtn = document.getElementById('prevMonthBtn');
+        const nextMonthBtn = document.getElementById('nextMonthBtn');
+        const modal = document.getElementById('postModal');
+        const closeModalBtn = document.getElementById('closeModalBtn');
+        const cancelModalBtn = document.getElementById('cancelModalBtn');
+        const savePostBtn = document.getElementById('savePostBtn');
+        const deletePostBtn = document.getElementById('deletePostBtn');
+        const imageInput = document.getElementById('postImage');
+        const confirmationModal = document.getElementById('confirmationModal');
+        const confirmationTitle = document.getElementById('confirmationTitle');
+        const confirmationMessage = document.getElementById('confirmationMessage');
+        const confirmCancelBtn = document.getElementById('confirmCancelBtn');
+        const confirmActionBtn = document.getElementById('confirmActionBtn');
+        const taskListContainer = document.getElementById('taskListContainer');
+        const newTaskInput = document.getElementById('newTaskInput');
+        const addTaskBtn = document.getElementById('addTaskBtn');
+        const carouselContainer = document.getElementById('carouselContainer');
+        const carouselMainImage = document.getElementById('carouselMainImage');
+        const carouselPrevBtn = document.getElementById('carouselPrevBtn');
+        const carouselNextBtn = document.getElementById('carouselNextBtn');
+        const carouselThumbnails = document.getElementById('carouselThumbnails');
+        const uploadPlaceholder = document.getElementById('uploadPlaceholder');
+        const lightboxModal = document.getElementById('lightboxModal');
+        const lightboxImage = document.getElementById('lightboxImage');
+        const lightboxCloseBtn = document.getElementById('lightboxCloseBtn');
+        const monthControl = document.getElementById('monthControl');
+        const viewSwitcher = document.getElementById('viewSwitcher');
+        const calendarView = document.getElementById('calendarView');
+        const boardView = document.getElementById('boardView');
+        const boardColumns = [{ id: 'entwurf', title: 'Entwurf' }, { id: 'freigabe', title: 'Zur Freigabe' }, { id: 'geplant', title: 'Geplant' }, { id: 'veroeffentlicht', title: 'Veröffentlicht' }];
+
+        // --- HELPER FUNCTIONS ---
+        const getTasksFromDOM = () => Array.from(taskListContainer.querySelectorAll('.task-item')).map(item => ({ id: item.dataset.taskId, text: item.querySelector('.task-text').value, completed: item.querySelector('.task-checkbox').checked, assignedTo: item.querySelector('.task-assignee').value }));
+        const getFormState = () => ({ title: document.getElementById('postTitle').value, caption: document.getElementById('postCaption').value, hashtags: document.getElementById('postHashtags').value, status: document.getElementById('postStatus').value, imageUrls: [...currentImageUrls], tasks: getTasksFromDOM() });
+        const hasUnsavedChanges = () => initialPostState && JSON.stringify(initialPostState) !== JSON.stringify(getFormState());
+        
+        // --- AUTHENTICATION ---
+        const updateAuthUI = () => {
+            if (authMode === 'login') {
+                authTitle.textContent = 'Anmelden';
+                authSubmitBtn.textContent = 'Anmelden';
+                authSubtitle.innerHTML = `oder <button id="switch-auth-mode" class="font-medium text-blue-600 hover:text-blue-500">erstelle einen neuen Account</button>`;
+            } else {
+                authTitle.textContent = 'Registrieren';
+                authSubmitBtn.textContent = 'Account erstellen';
+                authSubtitle.innerHTML = `Du hast bereits einen Account? <button id="switch-auth-mode" class="font-medium text-blue-600 hover:text-blue-500">Hier anmelden</button>`;
+            }
+            document.getElementById('switch-auth-mode').addEventListener('click', () => {
+                authMode = authMode === 'login' ? 'register' : 'login';
+                updateAuthUI();
+            });
+        };
+
+        authForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const email = authForm.email.value;
+            const password = authForm.password.value;
+            authError.textContent = '';
+            const action = authMode === 'login' ? signInWithEmailAndPassword : createUserWithEmailAndPassword;
+            action(auth, email, password).catch(error => authError.textContent = error.message);
+        });
+
+        logoutBtn.addEventListener('click', () => signOut(auth));
+
+        onAuthStateChanged(auth, user => {
+            if (user) {
+                authView.classList.add('hidden');
+                mainAppView.classList.remove('hidden');
+                userEmailEl.textContent = user.email;
+                const postsColRef = collection(db, 'users', user.uid, 'posts');
+                unsubscribePosts = onSnapshot(query(postsColRef), (snapshot) => {
+                    localPosts = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                    render();
+                });
+            } else {
+                authView.classList.remove('hidden');
+                mainAppView.classList.add('hidden');
+                userEmailEl.textContent = '';
+                if (unsubscribePosts) unsubscribePosts();
+                localPosts = [];
+            }
+        });
+        
+        // --- DATA (FIRESTORE) ---
+        const savePost = async (postData) => {
+            const user = auth.currentUser;
+            if (!user) return;
+            const { id, ...dataToSave } = postData;
+            if (id) {
+                await setDoc(doc(db, 'users', user.uid, 'posts', id), dataToSave, { merge: true });
+            } else {
+                await addDoc(collection(db, 'users', user.uid, 'posts'), dataToSave);
+            }
+        };
+
+        const deletePost = async (postId) => {
+            const user = auth.currentUser;
+            if (!user || !postId) return;
+            await deleteDoc(doc(db, 'users', user.uid, 'posts', postId));
+        };
+
+        const updatePostStatus = async (postId, newStatus) => {
+            const user = auth.currentUser;
+            if (!user || !postId) return;
+            await setDoc(doc(db, 'users', user.uid, 'posts', postId), { status: newStatus }, { merge: true });
+        };
+
+        // --- MODALS ---
+        const openConfirmationModal = (config) => {
+            confirmationTitle.textContent = config.title;
+            confirmationMessage.textContent = config.message;
+            confirmActionBtn.textContent = config.confirmText;
+            confirmActionBtn.className = `py-2 px-6 border border-transparent rounded-lg font-medium text-white ${config.confirmClass}`;
+            confirmAction = config.onConfirm;
+            confirmationModal.classList.remove('opacity-0', 'pointer-events-none');
+            confirmationModal.querySelector('.confirmation-content').classList.remove('scale-95');
+        };
+        const closeConfirmationModal = () => {
+            confirmationModal.classList.add('opacity-0', 'pointer-events-none');
+            confirmationModal.querySelector('.confirmation-content').classList.add('scale-95');
+            confirmAction = null;
+        };
+        const openModal = () => {
+            modal.classList.remove('opacity-0', 'pointer-events-none');
+            modal.querySelector('.modal-content').classList.remove('scale-95');
+            setTimeout(() => initialPostState = getFormState(), 200); 
+        };
+        const closeModal = () => {
+            modal.classList.add('opacity-0', 'pointer-events-none');
+            modal.querySelector('.modal-content').classList.add('scale-95');
+            resetModalForm();
+        };
+        const resetModalForm = () => {
+            document.getElementById('postId').value = '';
+            document.getElementById('postDate').value = '';
+            document.getElementById('postTitle').value = '';
+            document.getElementById('postCaption').value = '';
+            document.getElementById('postHashtags').value = '';
+            document.getElementById('postStatus').value = 'entwurf';
+            imageInput.value = '';
+            taskListContainer.innerHTML = '';
+            resetCarousel();
+            initialPostState = null;
+        };
+        const fillModalForm = (post) => {
+            resetModalForm();
+            document.getElementById('postId').value = post.id;
+            document.getElementById('postDate').value = post.date;
+            document.getElementById('postTitle').value = post.title;
+            document.getElementById('postCaption').value = post.caption;
+            document.getElementById('postHashtags').value = post.hashtags;
+            document.getElementById('postStatus').value = post.status;
+            renderTasks(post.tasks || []);
+            if (post.imageUrls && post.imageUrls.length > 0) {
+                currentImageUrls = [...post.imageUrls];
+                renderCarousel();
+            }
+        };
+        const openLightbox = () => {
+            if (currentImageUrls.length > 0) {
+                lightboxImage.src = currentImageUrls[currentCarouselIndex];
+                lightboxModal.classList.remove('opacity-0', 'pointer-events-none');
+            }
+        };
+        const closeLightbox = () => lightboxModal.classList.add('opacity-0', 'pointer-events-none');
+
+        // --- CAROUSEL & TASKS ---
+        const renderCarousel = () => {
+            if (currentImageUrls.length === 0) { resetCarousel(); return; }
+            uploadPlaceholder.classList.add('hidden');
+            carouselContainer.classList.remove('hidden');
+            currentCarouselIndex = Math.max(0, Math.min(currentCarouselIndex, currentImageUrls.length - 1));
+            carouselMainImage.src = currentImageUrls[currentCarouselIndex];
+            carouselThumbnails.innerHTML = '';
+            currentImageUrls.forEach((url, index) => {
+                const thumb = document.createElement('img');
+                thumb.src = url;
+                thumb.className = `carousel-thumbnail h-8 w-8 object-cover rounded-md border-2 border-transparent opacity-60 hover:opacity-100 cursor-pointer ${index === currentCarouselIndex ? 'active' : ''}`;
+                thumb.addEventListener('click', () => { currentCarouselIndex = index; renderCarousel(); });
+                carouselThumbnails.appendChild(thumb);
+            });
+        };
+        const resetCarousel = () => {
+            currentImageUrls = [];
+            currentCarouselIndex = 0;
+            uploadPlaceholder.classList.remove('hidden');
+            carouselContainer.classList.add('hidden');
+        };
+        const renderTasks = (tasks = []) => {
+            taskListContainer.innerHTML = '';
+            tasks.forEach(task => {
+                const taskItem = document.createElement('div');
+                taskItem.className = 'task-item flex items-center gap-2 bg-gray-50 p-2 rounded-lg';
+                taskItem.dataset.taskId = task.id;
+                taskItem.innerHTML = `<input type="checkbox" class="task-checkbox h-5 w-5 rounded border-gray-300 text-blue-600 focus:ring-blue-500" ${task.completed ? 'checked' : ''}><input type="text" class="task-text flex-grow bg-transparent border-none focus:ring-0 p-0" value="${task.text}"><input type="text" class="task-assignee w-20 text-xs bg-gray-200 border-none rounded-full px-2 py-1 text-center focus:ring-1 focus:ring-blue-500" placeholder="Wer?" value="${task.assignedTo || ''}"><button class="delete-task-btn text-gray-400 hover:text-red-500 p-1"><svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg></button>`;
+                taskListContainer.appendChild(taskItem);
+            });
+        };
+        const addTask = (text) => {
+            const tasks = getTasksFromDOM();
+            tasks.push({ id: `task-${Date.now()}`, text: text, completed: false, assignedTo: '' });
+            renderTasks(tasks);
+        };
+
+        // --- RENDER LOGIC ---
+        const render = () => {
+            if (currentView === 'calendar') {
+                renderCalendar(localPosts);
+            } else {
+                renderBoard(localPosts);
+            }
+            updateViewSwitcher();
+        };
+
+        const renderCalendar = (posts) => {
+            calendarGrid.innerHTML = '';
+            const year = currentDate.getFullYear();
+            const month = currentDate.getMonth();
+            currentMonthYearEl.textContent = `${currentDate.toLocaleString('de-DE', { month: 'long' })} ${year}`;
+            const firstDayOfMonth = new Date(year, month, 1).getDay();
+            const daysInMonth = new Date(year, month + 1, 0).getDate();
+            const startDay = firstDayOfMonth === 0 ? 6 : firstDayOfMonth - 1;
+            for (let i = 0; i < startDay; i++) { calendarGrid.innerHTML += `<div class="border border-gray-200 rounded-lg"></div>`; }
+            for (let day = 1; day <= daysInMonth; day++) {
+                const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+                const dayPosts = posts.filter(p => p.date === dateStr);
+                const dayCell = document.createElement('div');
+                dayCell.className = 'calendar-day border border-gray-200 rounded-lg p-2 flex flex-col cursor-pointer hover:bg-blue-50 transition-colors';
+                dayCell.dataset.date = dateStr;
+                dayCell.innerHTML = `<span class="font-semibold text-gray-700">${day}</span>`;
+                const postsContainer = document.createElement('div');
+                postsContainer.className = 'mt-1 space-y-1 overflow-y-auto';
+                dayPosts.forEach(post => {
+                    const postCard = document.createElement('div');
+                    postCard.className = `p-1.5 rounded-md text-xs font-semibold cursor-grab bg-gray-100`;
+                    postCard.dataset.postId = post.id;
+                    const tasksTotal = post.tasks?.length || 0;
+                    const tasksCompleted = post.tasks?.filter(t => t.completed).length || 0;
+                    const hasMultipleImages = post.imageUrls && post.imageUrls.length > 1;
+                    postCard.innerHTML = `<div class="flex items-center gap-2">${post.imageUrls && post.imageUrls[0] ? `<img src="${post.imageUrls[0]}" class="w-5 h-5 rounded object-cover">` : ''}<span class="truncate flex-1">${post.title || 'Ohne Titel'}</span>${hasMultipleImages ? `<svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 text-gray-500" viewBox="0 0 20 20" fill="currentColor"><path d="M7 3a1 1 0 000 2h6a1 1 0 100-2H7zM4 7a1 1 0 011-1h10a1 1 0 110 2H5a1 1 0 01-1-1zM2 11a1 1 0 011-1h14a1 1 0 110 2H3a1 1 0 01-1-1z" /></svg>` : ''}${tasksTotal > 0 ? `<span class="text-gray-500 text-[10px]">${tasksCompleted}/${tasksTotal}</span>` : ''}<span class="status-badge status-${post.status}">${post.status.charAt(0)}</span></div>`;
+                    postCard.addEventListener('click', (e) => { e.stopPropagation(); fillModalForm(post); openModal(); });
+                    postsContainer.appendChild(postCard);
+                });
+                dayCell.appendChild(postsContainer);
+                dayCell.addEventListener('click', () => { resetModalForm(); document.getElementById('postDate').value = dateStr; openModal(); });
+                calendarGrid.appendChild(dayCell);
+            }
+        };
+
+        const renderBoard = (posts) => {
+            boardView.innerHTML = `<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4"></div>`;
+            const boardContainer = boardView.querySelector('.grid');
+            boardColumns.forEach(column => {
+                const columnEl = document.createElement('div');
+                columnEl.className = 'bg-white p-3 rounded-2xl shadow-md';
+                columnEl.innerHTML = `<h3 class="font-bold text-lg mb-3">${column.title}</h3><div class="kanban-column space-y-3" data-status="${column.id}"></div>`;
+                const postsInColumn = posts.filter(p => p.status === column.id);
+                const cardsContainer = columnEl.querySelector('.kanban-column');
+                postsInColumn.forEach(post => {
+                    const card = document.createElement('div');
+                    card.className = 'kanban-card bg-gray-50 p-3 rounded-lg shadow-sm cursor-pointer';
+                    card.draggable = true;
+                    card.dataset.postId = post.id;
+                    const tasksTotal = post.tasks?.length || 0;
+                    const tasksCompleted = post.tasks?.filter(t => t.completed).length || 0;
+                    card.innerHTML = `${post.imageUrls && post.imageUrls[0] ? `<img src="${post.imageUrls[0]}" class="w-full h-24 object-cover rounded-md mb-2">` : ''}<p class="font-semibold mb-2">${post.title || 'Ohne Titel'}</p><div class="flex items-center justify-between text-xs text-gray-500"><span>${new Date(post.date).toLocaleDateString('de-DE', {day: '2-digit', month: '2-digit'})}</span>${tasksTotal > 0 ? `<span>${tasksCompleted}/${tasksTotal} Tasks</span>` : '<span></span>'}</div>`;
+                    card.addEventListener('click', () => { fillModalForm(post); openModal(); });
+                    card.addEventListener('dragstart', (e) => { e.dataTransfer.setData('text/plain', post.id); setTimeout(() => card.classList.add('dragging'), 0); });
+                    card.addEventListener('dragend', () => card.classList.remove('dragging'));
+                    cardsContainer.appendChild(card);
+                });
+                cardsContainer.addEventListener('dragover', (e) => { e.preventDefault(); cardsContainer.classList.add('drag-over'); });
+                cardsContainer.addEventListener('dragleave', () => cardsContainer.classList.remove('drag-over'));
+                cardsContainer.addEventListener('drop', (e) => {
+                    e.preventDefault();
+                    cardsContainer.classList.remove('drag-over');
+                    const postId = e.dataTransfer.getData('text/plain');
+                    updatePostStatus(postId, column.id);
+                });
+                boardContainer.appendChild(columnEl);
+            });
+        };
+
+        const updateViewSwitcher = () => {
+            document.querySelectorAll('.view-btn').forEach(btn => {
+                btn.classList.toggle('bg-white', btn.dataset.view === currentView);
+                btn.classList.toggle('text-blue-600', btn.dataset.view === currentView);
+                btn.classList.toggle('text-gray-600', btn.dataset.view !== currentView);
+            });
+            calendarView.classList.toggle('hidden', currentView !== 'calendar');
+            boardView.classList.toggle('hidden', currentView !== 'board');
+            monthControl.style.visibility = currentView === 'board' ? 'hidden' : 'visible';
+        };
+
+        // --- EVENT LISTENERS ---
+        prevMonthBtn.addEventListener('click', () => { currentDate.setMonth(currentDate.getMonth() - 1); render(); });
+        nextMonthBtn.addEventListener('click', () => { currentDate.setMonth(currentDate.getMonth() + 1); render(); });
+        
+        const handleCloseAttempt = () => {
+            if (hasUnsavedChanges()) {
+                openConfirmationModal({ title: 'Ungespeicherte Änderungen', message: 'Möchtest du das Fenster wirklich schliessen? Deine Änderungen gehen verloren.', confirmText: 'Schliessen', confirmClass: 'bg-red-600 hover:bg-red-700', onConfirm: closeModal });
+            } else {
+                closeModal();
+            }
+        };
+        closeModalBtn.addEventListener('click', handleCloseAttempt);
+        cancelModalBtn.addEventListener('click', handleCloseAttempt);
+        
+        imageInput.addEventListener('change', (event) => {
+            const files = event.target.files;
+            if (!files.length) return;
+            const filePromises = Array.from(files).map(file => new Promise((resolve) => {
+                const reader = new FileReader();
+                reader.onload = (e) => resolve(e.target.result);
+                reader.readAsDataURL(file);
+            }));
+            Promise.all(filePromises).then(urls => {
+                currentImageUrls = urls;
+                currentCarouselIndex = 0;
+                renderCarousel();
+            });
+        });
+        
+        savePostBtn.addEventListener('click', async () => {
+            const id = document.getElementById('postId').value;
+            const postData = { date: document.getElementById('postDate').value, ...getFormState() };
+            if (id) postData.id = id;
+            
+            try {
+                await savePost(postData);
+            } catch (error) {
+                console.error("Fehler beim Speichern:", error);
+            } finally {
+                closeModal();
+            }
+        });
+
+        deletePostBtn.addEventListener('click', () => {
+            const id = document.getElementById('postId').value;
+            if (id) {
+                openConfirmationModal({
+                    title: 'Post löschen',
+                    message: 'Bist du sicher, dass du diesen Post endgültig löschen möchtest?',
+                    confirmText: 'Löschen',
+                    confirmClass: 'bg-red-600 hover:bg-red-700',
+                    onConfirm: async () => {
+                        await deletePost(id);
+                        closeModal();
+                    }
+                });
+            }
+        });
+        
+        confirmCancelBtn.addEventListener('click', closeConfirmationModal);
+        confirmActionBtn.addEventListener('click', () => {
+            if (typeof confirmAction === 'function') confirmAction();
+            closeConfirmationModal();
+        });
+        
+        addTaskBtn.addEventListener('click', () => {
+            const text = newTaskInput.value.trim();
+            if (text) { addTask(text); newTaskInput.value = ''; }
+        });
+        newTaskInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') addTaskBtn.click(); });
+        
+        taskListContainer.addEventListener('click', (e) => { if (e.target.closest('.delete-task-btn')) e.target.closest('.task-item').remove(); });
+        
+        carouselPrevBtn.addEventListener('click', () => { currentCarouselIndex = (currentCarouselIndex - 1 + currentImageUrls.length) % currentImageUrls.length; renderCarousel(); });
+        carouselNextBtn.addEventListener('click', () => { currentCarouselIndex = (currentCarouselIndex + 1) % currentImageUrls.length; renderCarousel(); });
+        
+        carouselMainImage.addEventListener('click', openLightbox);
+        lightboxCloseBtn.addEventListener('click', closeLightbox);
+        lightboxModal.addEventListener('click', (e) => { if (e.target === lightboxModal) closeLightbox(); });
+        
+        viewSwitcher.addEventListener('click', (e) => {
+            const button = e.target.closest('.view-btn');
+            if (button && button.dataset.view !== currentView) {
+                currentView = button.dataset.view;
+                render();
+            }
+        });
+
+        // --- INITIALIZATION ---
+        updateAuthUI();
+
+    </script>
+</body>
+</html>
