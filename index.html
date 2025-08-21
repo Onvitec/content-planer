@@ -21,8 +21,6 @@
         .kanban-column { min-height: 400px; }
         .kanban-card.dragging { opacity: 0.5; transform: rotate(3deg); }
         .kanban-column.drag-over { background-color: #f3f4f6; }
-        .form-field-group { display: none; }
-        .form-field-group.visible { display: block; }
     </style>
 </head>
 <body class="bg-gray-100 font-sans text-gray-800 antialiased">
@@ -92,10 +90,8 @@
         <main id="mainViewContainer">
              <div id="calendarView" class="bg-white p-2 sm:p-4 rounded-2xl shadow-lg"><div class="calendar-grid mb-2"><div class="text-center font-semibold text-gray-600 py-2">So</div><div class="text-center font-semibold text-gray-600 py-2">Mo</div><div class="text-center font-semibold text-gray-600 py-2">Di</div><div class="text-center font-semibold text-gray-600 py-2">Mi</div><div class="text-center font-semibold text-gray-600 py-2">Do</div><div class="text-center font-semibold text-gray-600 py-2">Fr</div><div class="text-center font-semibold text-gray-600 py-2">Sa</div></div><div id="calendarGrid" class="calendar-grid"></div></div>
              <div id="boardView" class="hidden">
-                <!-- NEU: Filter-Leiste -->
                 <div id="board-filter-container" class="flex items-center gap-2 mb-4 bg-white p-3 rounded-2xl shadow-md">
                     <span class="font-semibold text-gray-700">Aufgaben von:</span>
-                    <!-- Filter-Buttons werden hier per JS generiert -->
                 </div>
                 <div id="board-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4"></div>
              </div>
@@ -103,7 +99,7 @@
     </div>
 
     <!-- Modals -->
-    <div id="postModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50 opacity-0 pointer-events-none modal-backdrop"><div class="bg-white rounded-2xl shadow-2xl w-full max-w-3xl max-h-[90vh] flex flex-col modal-content transform scale-95"><div class="flex items-center justify-between p-6 border-b"><h3 class="text-2xl font-bold">Post Details</h3><button id="closeModalBtn" class="p-2 rounded-full hover:bg-gray-200 transition-colors"><svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg></button></div><div class="p-6 overflow-y-auto"><input type="hidden" id="postId"><input type="hidden" id="postDate"><div class="grid grid-cols-1 md:grid-cols-2 gap-6"><div><div class="mb-4"><label for="postTitle" class="block text-sm font-medium text-gray-700 mb-1">Titel</label><input type="text" id="postTitle" class="w-full border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500" placeholder="Kurzer Titel für die Kalenderansicht"></div><div class="mb-4"><label for="postStatus" class="block text-sm font-medium text-gray-700 mb-1">Status</label><select id="postStatus" class="w-full border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500"><option value="entwurf">Entwurf</option><option value="freigabe">Zur Freigabe</option><option value="geplant">Geplant</option><option value="veroeffentlicht">Veröffentlicht</option></select></div><div class="mb-4"><label class="block text-sm font-medium text-gray-700 mb-1">Bilder / Video</label><div id="carouselContainer" class="hidden relative w-full aspect-square bg-gray-100 rounded-lg flex items-center justify-center"><img id="carouselMainImage" src="" class="max-h-full max-w-full object-contain cursor-pointer" title="Klicken für Grossansicht"><button id="carouselPrevBtn" class="absolute left-2 top-1/2 -translate-y-1/2 bg-white/70 p-1 rounded-full shadow-md hover:bg-white transition-colors"><svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" /></svg></button><button id="carouselNextBtn" class="absolute right-2 top-1/2 -translate-y-1/2 bg-white/70 p-1 rounded-full shadow-md hover:bg-white transition-colors"><svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" /></svg></button><div id="carouselThumbnails" class="absolute bottom-2 left-1/2 -translate-x-1/2 flex gap-2 bg-black/50 p-1 rounded-full"></div></div><div id="uploadPlaceholder" class="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-md"><div class="space-y-1 text-center"><svg class="mx-auto h-12 w-12 text-gray-400" stroke="currentColor" fill="none" viewBox="0 0 48 48" aria-hidden="true"><path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" /></svg><div class="flex text-sm text-gray-600"><label for="postImage" class="relative cursor-pointer bg-white rounded-md font-medium text-blue-600 hover:text-blue-500 focus-within:outline-none"><span>Dateien hochladen</span><input id="postImage" type="file" class="sr-only" accept="image/*,video/*" multiple></label></div><p class="text-xs text-gray-500">Mehrere Bilder für Karussell möglich</p></div></div></div></div><div><label class="block text-sm font-medium text-gray-700 mb-2">Aufgaben-Checkliste</label><div id="taskListContainer" class="space-y-2 mb-3"></div><div class="flex gap-2"><input type="text" id="newTaskInput" placeholder="Neue Aufgabe hinzufügen..." class="flex-grow w-full border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500"><button id="addTaskBtn" class="bg-blue-100 text-blue-800 font-semibold px-4 py-2 rounded-lg hover:bg-blue-200 transition-colors">Add</button></div></div></div><div class="mt-6"><label for="postCaption" class="block text-sm font-medium text-gray-700 mb-1">Caption</label><textarea id="postCaption" rows="6" class="w-full border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500" placeholder="Schreibe hier deinen Post-Text..."></textarea></div><div class="mt-4"><label for="postHashtags" class="block text-sm font-medium text-gray-700 mb-1">Hashtags</label><input type="text" id="postHashtags" class="w-full border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500" placeholder="#planning #socialmedia ..."></div></div><div class="flex items-center justify-between p-6 border-t bg-gray-50 rounded-b-2xl"><button id="deletePostBtn" class="text-red-600 hover:text-red-800 font-semibold transition-colors">Post löschen</button><div><button id="cancelModalBtn" class="bg-white py-2 px-4 border border-gray-300 rounded-lg shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50">Abbrechen</button><button id="savePostBtn" class="ml-3 inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-lg text-white bg-blue-600 hover:bg-blue-700">Speichern</button></div></div></div></div>
+    <div id="postModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50 opacity-0 pointer-events-none modal-backdrop"><div class="bg-white rounded-2xl shadow-2xl w-full max-w-3xl max-h-[90vh] flex flex-col modal-content transform scale-95"><div class="flex items-center justify-between p-6 border-b"><h3 class="text-2xl font-bold">Post Details</h3><button id="closeModalBtn" class="p-2 rounded-full hover:bg-gray-200 transition-colors"><svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg></button></div><div class="p-6 overflow-y-auto"><input type="hidden" id="postId"><input type="hidden" id="postDate"><div class="grid grid-cols-1 md:grid-cols-2 gap-6"><div><div class="mb-4"><label for="postTitle" class="block text-sm font-medium text-gray-700 mb-1">Titel</label><input type="text" id="postTitle" class="w-full border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500" placeholder="Kurzer Titel für die Kalenderansicht"></div><div class="mb-4"><label for="postStatus" class="block text-sm font-medium text-gray-700 mb-1">Status</label><select id="postStatus" class="w-full border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500"><option value="entwurf">Entwurf</option><option value="freigabe">Zur Freigabe</option><option value="geplant">Geplant</option><option value="veroeffentlicht">Veröffentlicht</option></select></div><div class="mb-4"><label class="block text-sm font-medium text-gray-700 mb-1">Bilder / Video</label><div id="carouselContainer" class="hidden relative w-full aspect-square bg-gray-100 rounded-lg flex items-center justify-center"><img id="carouselMainImage" src="" class="max-h-full max-w-full object-contain cursor-pointer" title="Klicken für Grossansicht"><button id="carouselPrevBtn" class="absolute left-2 top-1/2 -translate-y-1/2 bg-white/70 p-1 rounded-full shadow-md hover:bg-white transition-colors"><svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" /></svg></button><button id="carouselNextBtn" class="absolute right-2 top-1/2 -translate-y-1/2 bg-white/70 p-1 rounded-full shadow-md hover:bg-white transition-colors"><svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" /></svg></button><div id="carouselThumbnails" class="absolute bottom-2 left-1/2 -translate-x-1/2 flex gap-2 bg-black/50 p-1 rounded-full"></div></div><div id="uploadPlaceholder" class="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-md"><div class="space-y-1 text-center"><svg class="mx-auto h-12 w-12 text-gray-400" stroke="currentColor" fill="none" viewBox="0 0 48 48" aria-hidden="true"><path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" /></svg><div class="flex text-sm text-gray-600"><label for="postImage" class="relative cursor-pointer bg-white rounded-md font-medium text-blue-600 hover:text-blue-500 focus-within:outline-none"><span>Dateien hochladen</span><input id="postImage" type="file" class="sr-only" accept="image/*,video/*" multiple></label></div><p class="text-xs text-gray-500">Mehrere Bilder für Karussell möglich</p></div></div></div></div><div><label class="block text-sm font-medium text-gray-700 mb-2">Aufgaben-Checkliste</label><div id="taskListContainer" class="space-y-2 mb-3"></div><div class="flex gap-2"><input type="text" id="newTaskInput" placeholder="Neue Aufgabe hinzufügen..." class="flex-grow w-full border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500"><button id="addTaskBtn" class="bg-blue-100 text-blue-800 font-semibold px-4 py-2 rounded-lg hover:bg-blue-200 transition-colors">Add</button></div></div></div><div class="mt-6"><label for="postCaption" class="block text-sm font-medium text-gray-700 mb-1">Caption</label><textarea id="postCaption" rows="6" class="w-full border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500" placeholder="Schreibe hier deinen Post-Text..."></textarea></div><div class="mt-4"><label for="postHashtags" class="block text-sm font-medium text-gray-700 mb-1">Hashtags</label><input type="text" id="postHashtags" class="w-full border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500" placeholder="#planning #socialmedia ..."></div></div><div class="flex items-center justify-between p-6 border-t bg-gray-50 rounded-b-2xl"><button id="deletePostBtn" class="text-red-600 hover:text-red-800 font-semibold transition-colors">Post löschen</button><div><p id="modal-error" class="text-sm text-red-500 mr-4"></p><button id="cancelModalBtn" class="bg-white py-2 px-4 border border-gray-300 rounded-lg shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50">Abbrechen</button><button id="savePostBtn" class="ml-3 inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-lg text-white bg-blue-600 hover:bg-blue-700 disabled:opacity-50">Speichern</button></div></div></div></div>
     <div id="confirmationModal" class="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center p-4 z-[100] opacity-0 pointer-events-none transition-opacity duration-300 confirmation-backdrop"><div class="bg-white rounded-2xl shadow-2xl w-full max-w-sm p-6 text-center transform scale-95 transition-transform duration-300 confirmation-content"><h4 id="confirmationTitle" class="text-lg font-bold mb-2">Aktion bestätigen</h4><p id="confirmationMessage" class="text-gray-600 mb-6">Möchtest du wirklich fortfahren?</p><div class="flex justify-center gap-4"><button id="confirmCancelBtn" class="bg-white py-2 px-6 border border-gray-300 rounded-lg font-medium text-gray-700 hover:bg-gray-50">Abbrechen</button><button id="confirmActionBtn" class="py-2 px-6 border border-transparent rounded-lg font-medium text-white">Bestätigen</button></div></div></div>
     <div id="lightboxModal" class="fixed inset-0 bg-black/80 flex items-center justify-center p-4 z-[120] opacity-0 pointer-events-none transition-opacity duration-300 lightbox-backdrop" ><img id="lightboxImage" src="" class="max-h-[90vh] max-w-[90vw] object-contain lightbox-content"><button id="lightboxCloseBtn" class="absolute top-4 right-4 text-white p-2 bg-black/50 rounded-full hover:bg-black/80 transition-colors"><svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg></button></div>
 
@@ -142,7 +138,7 @@
         let currentImageUrls = [];
         let currentView = 'calendar';
         let authMode = 'login';
-        let currentBoardFilter = 'all'; // NEU: State für den Board-Filter
+        let currentBoardFilter = 'all';
 
         const authView = document.getElementById('auth-view');
         const mainAppView = document.getElementById('app');
@@ -185,8 +181,9 @@
         const viewSwitcher = document.getElementById('viewSwitcher');
         const calendarView = document.getElementById('calendarView');
         const boardView = document.getElementById('boardView');
-        const boardFilterContainer = document.getElementById('board-filter-container'); // NEU
-        const boardGrid = document.getElementById('board-grid'); // NEU
+        const boardFilterContainer = document.getElementById('board-filter-container');
+        const boardGrid = document.getElementById('board-grid');
+        const modalError = document.getElementById('modal-error');
         const boardColumns = [{ id: 'entwurf', title: 'Entwurf' }, { id: 'freigabe', title: 'Zur Freigabe' }, { id: 'geplant', title: 'Geplant' }, { id: 'veroeffentlicht', title: 'Veröffentlicht' }];
 
         // --- HELPER FUNCTIONS ---
@@ -440,7 +437,6 @@
         };
 
         const renderBoard = (posts) => {
-            // NEU: Filterlogik
             let filteredPosts = posts;
             if (currentBoardFilter !== 'all') {
                 filteredPosts = posts.filter(post => 
@@ -492,7 +488,6 @@
             monthControl.style.visibility = currentView === 'board' ? 'hidden' : 'visible';
         };
         
-        // NEU: UI für Board-Filter
         const updateBoardFilterUI = () => {
              boardFilterContainer.innerHTML = `<span class="font-semibold text-gray-700">Aufgaben von:</span>`;
              const allBtn = document.createElement('button');
@@ -547,16 +542,23 @@
         });
         
         savePostBtn.addEventListener('click', async () => {
+            modalError.textContent = '';
+            savePostBtn.disabled = true;
+            savePostBtn.innerHTML = `<svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg> Speichern...`;
+
             const id = document.getElementById('postId').value;
             const postData = { date: document.getElementById('postDate').value, ...getFormState() };
             if (id) postData.id = id;
             
             try {
                 await savePost(postData);
+                closeModal();
             } catch (error) {
                 console.error("Fehler beim Speichern:", error);
+                modalError.textContent = "Fehler: Post konnte nicht gespeichert werden.";
             } finally {
-                closeModal();
+                savePostBtn.disabled = false;
+                savePostBtn.textContent = 'Speichern';
             }
         });
 
@@ -605,7 +607,6 @@
             }
         });
 
-        // NEU: Event Listener für Board-Filter
         boardFilterContainer.addEventListener('click', (e) => {
             const button = e.target.closest('.board-filter-btn');
             if (button) {
