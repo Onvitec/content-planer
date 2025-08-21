@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Social Media Content Planer</title>
+    <title>Onvitec Content Planer</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
@@ -21,6 +21,8 @@
         .kanban-column { min-height: 400px; }
         .kanban-card.dragging { opacity: 0.5; transform: rotate(3deg); }
         .kanban-column.drag-over { background-color: #f3f4f6; }
+        .form-field-group { display: none; }
+        .form-field-group.visible { display: block; }
     </style>
 </head>
 <body class="bg-gray-100 font-sans text-gray-800 antialiased">
@@ -35,6 +37,16 @@
                 </p>
             </div>
             <form id="auth-form" class="mt-8 space-y-6">
+                <div id="name-fields" class="hidden grid grid-cols-2 gap-4">
+                    <div>
+                        <label for="first-name" class="sr-only">Vorname</label>
+                        <input id="first-name" name="firstName" type="text" autocomplete="given-name" class="appearance-none rounded-md relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm" placeholder="Vorname">
+                    </div>
+                    <div>
+                        <label for="last-name" class="sr-only">Nachname</label>
+                        <input id="last-name" name="lastName" type="text" autocomplete="family-name" class="appearance-none rounded-md relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm" placeholder="Nachname">
+                    </div>
+                </div>
                 <div class="rounded-md shadow-sm -space-y-px">
                     <div>
                         <label for="email-address" class="sr-only">E-Mail Adresse</label>
@@ -59,35 +71,34 @@
     <div id="app" class="container mx-auto p-4 md:p-8 hidden">
         <header class="flex justify-between items-center mb-8">
             <div class="text-left">
-                <h1 class="text-4xl font-bold text-gray-900">Content Planer</h1>
-                <p class="text-gray-600 mt-2">Angemeldet als: <span id="user-email" class="font-semibold"></span></p>
+                <h1 class="text-4xl font-bold text-gray-900">Onvitec Content Planer</h1>
+                <p id="user-greeting" class="text-gray-600 mt-2"></p>
             </div>
             <button id="logout-btn" class="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded-lg">Abmelden</button>
         </header>
 
         <div class="flex items-center justify-between mb-6 bg-white p-4 rounded-2xl shadow-md">
             <div id="monthControl" class="flex items-center">
-                <button id="prevMonthBtn" class="p-2 rounded-full hover:bg-gray-200 transition-colors">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" /></svg>
-                </button>
+                <button id="prevMonthBtn" class="p-2 rounded-full hover:bg-gray-200 transition-colors"><svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" /></svg></button>
                 <h2 id="currentMonthYear" class="text-2xl font-semibold w-48 text-center"></h2>
-                <button id="nextMonthBtn" class="p-2 rounded-full hover:bg-gray-200 transition-colors">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" /></svg>
-                </button>
+                <button id="nextMonthBtn" class="p-2 rounded-full hover:bg-gray-200 transition-colors"><svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" /></svg></button>
             </div>
             <div id="viewSwitcher" class="flex items-center gap-2 rounded-full bg-gray-200 p-1">
-                <button data-view="calendar" class="view-btn p-2 rounded-full transition-colors">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clip-rule="evenodd" /></svg>
-                </button>
-                <button data-view="board" class="view-btn p-2 rounded-full transition-colors">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path d="M2 4a1 1 0 011-1h2a1 1 0 011 1v12a1 1 0 01-1 1H3a1 1 0 01-1-1V4zM8 4a1 1 0 011-1h2a1 1 0 011 1v12a1 1 0 01-1 1H9a1 1 0 01-1-1V4zM15 3a1 1 0 00-1 1v12a1 1 0 001 1h2a1 1 0 001-1V4a1 1 0 00-1-1h-2z" /></svg>
-                </button>
+                <button data-view="calendar" class="view-btn p-2 rounded-full transition-colors"><svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clip-rule="evenodd" /></svg></button>
+                <button data-view="board" class="view-btn p-2 rounded-full transition-colors"><svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path d="M2 4a1 1 0 011-1h2a1 1 0 011 1v12a1 1 0 01-1 1H3a1 1 0 01-1-1V4zM8 4a1 1 0 011-1h2a1 1 0 011 1v12a1 1 0 01-1 1H9a1 1 0 01-1-1V4zM15 3a1 1 0 00-1 1v12a1 1 0 001 1h2a1 1 0 001-1V4a1 1 0 00-1-1h-2z" /></svg></button>
             </div>
         </div>
 
         <main id="mainViewContainer">
              <div id="calendarView" class="bg-white p-2 sm:p-4 rounded-2xl shadow-lg"><div class="calendar-grid mb-2"><div class="text-center font-semibold text-gray-600 py-2">So</div><div class="text-center font-semibold text-gray-600 py-2">Mo</div><div class="text-center font-semibold text-gray-600 py-2">Di</div><div class="text-center font-semibold text-gray-600 py-2">Mi</div><div class="text-center font-semibold text-gray-600 py-2">Do</div><div class="text-center font-semibold text-gray-600 py-2">Fr</div><div class="text-center font-semibold text-gray-600 py-2">Sa</div></div><div id="calendarGrid" class="calendar-grid"></div></div>
-             <div id="boardView" class="hidden"><div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4"></div></div>
+             <div id="boardView" class="hidden">
+                <!-- NEU: Filter-Leiste -->
+                <div id="board-filter-container" class="flex items-center gap-2 mb-4 bg-white p-3 rounded-2xl shadow-md">
+                    <span class="font-semibold text-gray-700">Aufgaben von:</span>
+                    <!-- Filter-Buttons werden hier per JS generiert -->
+                </div>
+                <div id="board-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4"></div>
+             </div>
         </main>
     </div>
 
@@ -100,7 +111,7 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
         import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
-        import { getFirestore, collection, doc, addDoc, setDoc, deleteDoc, onSnapshot, query } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
+        import { getFirestore, collection, doc, addDoc, setDoc, deleteDoc, onSnapshot, query, getDoc } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyCiCG2qt3N6-Dw8Py3zXAD-4wOML56sccM",
@@ -119,6 +130,11 @@
         // --- STATE & DOM ---
         let currentDate = new Date();
         let localPosts = [];
+        const teamMembers = [
+            { id: 'pigi', name: 'Pigi', email: 'pierluigi@onvitec.ch' },
+            { id: 'sonja', name: 'Sonja', email: 'sonja@onvitec.ch' },
+            { id: 'ari', name: 'Ari', email: 'polidigital.online@gmail.com' }
+        ];
         let unsubscribePosts = null; 
         let initialPostState = null;
         let confirmAction = null;
@@ -126,6 +142,7 @@
         let currentImageUrls = [];
         let currentView = 'calendar';
         let authMode = 'login';
+        let currentBoardFilter = 'all'; // NEU: State für den Board-Filter
 
         const authView = document.getElementById('auth-view');
         const mainAppView = document.getElementById('app');
@@ -134,7 +151,8 @@
         const authTitle = document.getElementById('auth-title');
         const authSubtitle = document.getElementById('auth-subtitle');
         const authSubmitBtn = document.getElementById('auth-submit-btn');
-        const userEmailEl = document.getElementById('user-email');
+        const userGreetingEl = document.getElementById('user-greeting');
+        const nameFields = document.getElementById('name-fields');
         const logoutBtn = document.getElementById('logout-btn');
         const calendarGrid = document.getElementById('calendarGrid');
         const currentMonthYearEl = document.getElementById('currentMonthYear');
@@ -167,6 +185,8 @@
         const viewSwitcher = document.getElementById('viewSwitcher');
         const calendarView = document.getElementById('calendarView');
         const boardView = document.getElementById('boardView');
+        const boardFilterContainer = document.getElementById('board-filter-container'); // NEU
+        const boardGrid = document.getElementById('board-grid'); // NEU
         const boardColumns = [{ id: 'entwurf', title: 'Entwurf' }, { id: 'freigabe', title: 'Zur Freigabe' }, { id: 'geplant', title: 'Geplant' }, { id: 'veroeffentlicht', title: 'Veröffentlicht' }];
 
         // --- HELPER FUNCTIONS ---
@@ -176,6 +196,7 @@
         
         // --- AUTHENTICATION ---
         const updateAuthUI = () => {
+            nameFields.classList.toggle('hidden', authMode !== 'register');
             if (authMode === 'login') {
                 authTitle.textContent = 'Anmelden';
                 authSubmitBtn.textContent = 'Anmelden';
@@ -191,31 +212,60 @@
             });
         };
 
-        authForm.addEventListener('submit', (e) => {
+        authForm.addEventListener('submit', async (e) => {
             e.preventDefault();
             const email = authForm.email.value;
             const password = authForm.password.value;
             authError.textContent = '';
-            const action = authMode === 'login' ? signInWithEmailAndPassword : createUserWithEmailAndPassword;
-            action(auth, email, password).catch(error => authError.textContent = error.message);
+
+            if (authMode === 'register') {
+                const firstName = authForm.firstName.value;
+                const lastName = authForm.lastName.value;
+                if (!firstName || !lastName) {
+                    authError.textContent = "Bitte Vor- und Nachname angeben.";
+                    return;
+                }
+                try {
+                    const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+                    const user = userCredential.user;
+                    await setDoc(doc(db, "users", user.uid), {
+                        firstName: firstName,
+                        lastName: lastName,
+                        email: user.email
+                    });
+                } catch (error) {
+                    authError.textContent = error.message;
+                }
+            } else {
+                signInWithEmailAndPassword(auth, email, password)
+                    .catch(error => authError.textContent = error.message);
+            }
         });
 
         logoutBtn.addEventListener('click', () => signOut(auth));
 
-        onAuthStateChanged(auth, user => {
+        onAuthStateChanged(auth, async user => {
             if (user) {
                 authView.classList.add('hidden');
                 mainAppView.classList.remove('hidden');
-                userEmailEl.textContent = user.email;
+                
+                const userDoc = await getDoc(doc(db, "users", user.uid));
+                if (userDoc.exists()) {
+                    userGreetingEl.textContent = `Hallo, ${userDoc.data().firstName}!`;
+                } else {
+                    userGreetingEl.textContent = `Hallo!`;
+                }
+
                 const postsColRef = collection(db, 'users', user.uid, 'posts');
                 unsubscribePosts = onSnapshot(query(postsColRef), (snapshot) => {
                     localPosts = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
                     render();
                 });
+
             } else {
                 authView.classList.remove('hidden');
                 mainAppView.classList.add('hidden');
-                userEmailEl.textContent = '';
+                userGreetingEl.textContent = '';
                 if (unsubscribePosts) unsubscribePosts();
                 localPosts = [];
             }
@@ -296,12 +346,7 @@
                 renderCarousel();
             }
         };
-        const openLightbox = () => {
-            if (currentImageUrls.length > 0) {
-                lightboxImage.src = currentImageUrls[currentCarouselIndex];
-                lightboxModal.classList.remove('opacity-0', 'pointer-events-none');
-            }
-        };
+        const openLightbox = () => { if (currentImageUrls.length > 0) { lightboxImage.src = currentImageUrls[currentCarouselIndex]; lightboxModal.classList.remove('opacity-0', 'pointer-events-none'); } };
         const closeLightbox = () => lightboxModal.classList.add('opacity-0', 'pointer-events-none');
 
         // --- CAROUSEL & TASKS ---
@@ -320,19 +365,26 @@
                 carouselThumbnails.appendChild(thumb);
             });
         };
-        const resetCarousel = () => {
-            currentImageUrls = [];
-            currentCarouselIndex = 0;
-            uploadPlaceholder.classList.remove('hidden');
-            carouselContainer.classList.add('hidden');
-        };
+        const resetCarousel = () => { currentImageUrls = []; currentCarouselIndex = 0; uploadPlaceholder.classList.remove('hidden'); carouselContainer.classList.add('hidden'); };
+        
         const renderTasks = (tasks = []) => {
             taskListContainer.innerHTML = '';
             tasks.forEach(task => {
                 const taskItem = document.createElement('div');
                 taskItem.className = 'task-item flex items-center gap-2 bg-gray-50 p-2 rounded-lg';
                 taskItem.dataset.taskId = task.id;
-                taskItem.innerHTML = `<input type="checkbox" class="task-checkbox h-5 w-5 rounded border-gray-300 text-blue-600 focus:ring-blue-500" ${task.completed ? 'checked' : ''}><input type="text" class="task-text flex-grow bg-transparent border-none focus:ring-0 p-0" value="${task.text}"><input type="text" class="task-assignee w-20 text-xs bg-gray-200 border-none rounded-full px-2 py-1 text-center focus:ring-1 focus:ring-blue-500" placeholder="Wer?" value="${task.assignedTo || ''}"><button class="delete-task-btn text-gray-400 hover:text-red-500 p-1"><svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg></button>`;
+                
+                const userOptions = teamMembers.map(user => `<option value="${user.id}" ${task.assignedTo === user.id ? 'selected' : ''}>${user.name}</option>`).join('');
+                
+                taskItem.innerHTML = `
+                    <input type="checkbox" class="task-checkbox h-5 w-5 rounded border-gray-300 text-blue-600 focus:ring-blue-500" ${task.completed ? 'checked' : ''}>
+                    <input type="text" class="task-text flex-grow bg-transparent border-none focus:ring-0 p-0" value="${task.text}">
+                    <select class="task-assignee w-24 text-xs bg-gray-200 border-none rounded-full px-2 py-1 text-center focus:ring-1 focus:ring-blue-500">
+                        <option value="">Wer?</option>
+                        ${userOptions}
+                    </select>
+                    <button class="delete-task-btn text-gray-400 hover:text-red-500 p-1"><svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg></button>
+                `;
                 taskListContainer.appendChild(taskItem);
             });
         };
@@ -388,13 +440,20 @@
         };
 
         const renderBoard = (posts) => {
-            boardView.innerHTML = `<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4"></div>`;
-            const boardContainer = boardView.querySelector('.grid');
+            // NEU: Filterlogik
+            let filteredPosts = posts;
+            if (currentBoardFilter !== 'all') {
+                filteredPosts = posts.filter(post => 
+                    post.tasks && post.tasks.some(task => task.assignedTo === currentBoardFilter)
+                );
+            }
+
+            boardGrid.innerHTML = '';
             boardColumns.forEach(column => {
                 const columnEl = document.createElement('div');
                 columnEl.className = 'bg-white p-3 rounded-2xl shadow-md';
                 columnEl.innerHTML = `<h3 class="font-bold text-lg mb-3">${column.title}</h3><div class="kanban-column space-y-3" data-status="${column.id}"></div>`;
-                const postsInColumn = posts.filter(p => p.status === column.id);
+                const postsInColumn = filteredPosts.filter(p => p.status === column.id);
                 const cardsContainer = columnEl.querySelector('.kanban-column');
                 postsInColumn.forEach(post => {
                     const card = document.createElement('div');
@@ -417,8 +476,9 @@
                     const postId = e.dataTransfer.getData('text/plain');
                     updatePostStatus(postId, column.id);
                 });
-                boardContainer.appendChild(columnEl);
+                boardGrid.appendChild(columnEl);
             });
+            updateBoardFilterUI();
         };
 
         const updateViewSwitcher = () => {
@@ -430,6 +490,31 @@
             calendarView.classList.toggle('hidden', currentView !== 'calendar');
             boardView.classList.toggle('hidden', currentView !== 'board');
             monthControl.style.visibility = currentView === 'board' ? 'hidden' : 'visible';
+        };
+        
+        // NEU: UI für Board-Filter
+        const updateBoardFilterUI = () => {
+             boardFilterContainer.innerHTML = `<span class="font-semibold text-gray-700">Aufgaben von:</span>`;
+             const allBtn = document.createElement('button');
+             allBtn.dataset.filter = 'all';
+             allBtn.textContent = 'Alle';
+             allBtn.className = `board-filter-btn px-3 py-1 rounded-full text-sm font-semibold transition-colors`;
+             boardFilterContainer.appendChild(allBtn);
+
+             teamMembers.forEach(member => {
+                const memberBtn = document.createElement('button');
+                memberBtn.dataset.filter = member.id;
+                memberBtn.textContent = member.name;
+                memberBtn.className = `board-filter-btn px-3 py-1 rounded-full text-sm font-semibold transition-colors`;
+                boardFilterContainer.appendChild(memberBtn);
+             });
+
+             document.querySelectorAll('.board-filter-btn').forEach(btn => {
+                btn.classList.toggle('bg-blue-600', btn.dataset.filter === currentBoardFilter);
+                btn.classList.toggle('text-white', btn.dataset.filter === currentBoardFilter);
+                btn.classList.toggle('bg-gray-200', btn.dataset.filter !== currentBoardFilter);
+                btn.classList.toggle('text-gray-800', btn.dataset.filter !== currentBoardFilter);
+             });
         };
 
         // --- EVENT LISTENERS ---
@@ -517,6 +602,15 @@
             if (button && button.dataset.view !== currentView) {
                 currentView = button.dataset.view;
                 render();
+            }
+        });
+
+        // NEU: Event Listener für Board-Filter
+        boardFilterContainer.addEventListener('click', (e) => {
+            const button = e.target.closest('.board-filter-btn');
+            if (button) {
+                currentBoardFilter = button.dataset.filter;
+                renderBoard(localPosts);
             }
         });
 
