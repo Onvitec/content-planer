@@ -134,6 +134,9 @@
                         </label>
                     </div>
                 </div>
+                <div id="upload-progress-container" class="hidden w-full bg-gray-200 rounded-full h-2.5">
+                    <div id="upload-progress-bar" class="bg-blue-600 h-2.5 rounded-full" style="width: 0%"></div>
+                </div>
                 <div class="grid grid-cols-2 gap-4">
                     <div>
                         <label for="profileFirstName" class="block text-sm font-medium text-gray-700">Vorname</label>
@@ -154,7 +157,7 @@
             </div>
             <div class="flex justify-end gap-4 mt-6">
                 <button id="profileCancelBtn" class="bg-white py-2 px-6 border border-gray-300 rounded-lg font-medium text-gray-700 hover:bg-gray-50">Abbrechen</button>
-                <button id="profileSaveBtn" class="py-2 px-6 border border-transparent rounded-lg font-medium text-white bg-blue-600 hover:bg-blue-700">Speichern</button>
+                <button id="profileSaveBtn" class="py-2 px-6 border border-transparent rounded-lg font-medium text-white bg-blue-600 hover:bg-blue-700 disabled:opacity-50">Speichern</button>
             </div>
         </div>
     </div>
@@ -164,7 +167,7 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
         import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged, updatePassword } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
         import { getFirestore, collection, doc, addDoc, setDoc, deleteDoc, onSnapshot, query, getDoc, serverTimestamp, writeBatch, orderBy } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
-        import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-storage.js";
+        import { getStorage, ref, uploadBytesResumable, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-storage.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyCiCG2qt3N6-Dw8Py3zXAD-4wOML56sccM",
@@ -196,7 +199,7 @@
         let currentView = 'calendar';
         let authMode = 'login';
         let currentBoardFilter = 'all';
-        let newProfileImageFile = null;
+        let newProfileImageURL = null;
 
         const authView = document.getElementById('auth-view');
         const mainAppView = document.getElementById('app');
@@ -250,6 +253,8 @@
         const changePasswordBtn = document.getElementById('changePasswordBtn');
         const profileCancelBtn = document.getElementById('profileCancelBtn');
         const profileSaveBtn = document.getElementById('profileSaveBtn');
+        const uploadProgressContainer = document.getElementById('upload-progress-container');
+        const uploadProgressBar = document.getElementById('upload-progress-bar');
         const commentsContainer = document.getElementById('comments-container');
         const newCommentInput = document.getElementById('new-comment-input');
         const sendCommentBtn = document.getElementById('send-comment-btn');
@@ -499,7 +504,9 @@
         };
         
         const openProfileModal = async () => {
-            newProfileImageFile = null;
+            newProfileImageURL = null;
+            uploadProgressContainer.classList.add('hidden');
+            profileSaveBtn.disabled = false;
             const user = auth.currentUser;
             if (!user) return;
             const userDoc = await getDoc(doc(db, "users", user.uid));
@@ -927,6 +934,8 @@
                 
                 if (!newFirstName || !newLastName) {
                     openConfirmationModal({ title: "Fehler", message: "Bitte Vor- und Nachname angeben.", confirmText: "OK", confirmClass: "bg-blue-600" });
+                    profileSaveBtn.disabled = false;
+                    profileSaveBtn.innerHTML = 'Speichern';
                     return;
                 }
 
@@ -934,18 +943,17 @@
                     firstName: newFirstName,
                     lastName: newLastName,
                 };
-
-                if (newProfileImageFile) {
-                    const storageRef = ref(storage, `users/${user.uid}/profile.jpg`);
-                    await uploadBytes(storageRef, newProfileImageFile);
-                    const downloadURL = await getDownloadURL(storageRef);
-                    userDataToUpdate.photoURL = downloadURL;
+                
+                // KORREKTUR: Nur die neue URL speichern, wenn eine neue Datei hochgeladen wurde
+                if (newProfileImageURL) {
+                    userDataToUpdate.photoURL = newProfileImageURL;
                 }
                 
                 await setDoc(doc(db, "users", user.uid), userDataToUpdate, { merge: true });
                 userGreetingEl.textContent = `Hallo, ${newFirstName}!`;
-                openConfirmationModal({ title: "Erfolg", message: "Profil erfolgreich aktualisiert!", confirmText: "OK", confirmClass: "bg-blue-600" });
+                
                 closeProfileModal();
+                openConfirmationModal({ title: "Erfolg", message: "Profil erfolgreich aktualisiert!", confirmText: "OK", confirmClass: "bg-blue-600" });
                 
             } catch (error) {
                 console.error("Fehler beim Speichern des Profils:", error);
@@ -953,7 +961,7 @@
             } finally {
                 profileSaveBtn.disabled = false;
                 profileSaveBtn.innerHTML = 'Speichern';
-                newProfileImageFile = null;
+                newProfileImageURL = null;
             }
         });
 
@@ -974,12 +982,37 @@
         profileImageUpload.addEventListener('change', (e) => {
             const file = e.target.files[0];
             if (!file) return;
-            newProfileImageFile = file;
-            const reader = new FileReader();
-            reader.onload = (event) => {
-                profileImagePreview.src = event.target.result;
-            };
-            reader.readAsDataURL(file);
+
+            const user = auth.currentUser;
+            if (!user) return;
+
+            // KORREKTUR: Robuster Upload-Prozess
+            profileSaveBtn.disabled = true;
+            uploadProgressContainer.classList.remove('hidden');
+            uploadProgressBar.style.width = '0%';
+
+            const storageRef = ref(storage, `users/${user.uid}/profile.jpg`);
+            const uploadTask = uploadBytesResumable(storageRef, file);
+
+            uploadTask.on('state_changed', 
+                (snapshot) => {
+                    const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+                    uploadProgressBar.style.width = progress + '%';
+                }, 
+                (error) => {
+                    console.error("Upload-Fehler:", error);
+                    alert("Fehler beim Hochladen des Bildes.");
+                    uploadProgressContainer.classList.add('hidden');
+                    profileSaveBtn.disabled = false;
+                }, 
+                async () => {
+                    const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
+                    newProfileImageURL = downloadURL; // URL für den späteren Speicherprozess merken
+                    profileImagePreview.src = downloadURL;
+                    uploadProgressContainer.classList.add('hidden');
+                    profileSaveBtn.disabled = false;
+                }
+            );
         });
 
         sendCommentBtn.addEventListener('click', async () => {
