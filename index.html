@@ -71,7 +71,10 @@
                 <h1 class="text-4xl font-bold text-gray-900">Onvitec Content Planer</h1>
                 <p id="user-greeting" class="text-gray-600 mt-2"></p>
             </div>
-            <button id="logout-btn" class="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded-lg">Abmelden</button>
+            <div class="flex items-center gap-4">
+                <button id="profile-btn" class="bg-white hover:bg-gray-100 text-gray-800 font-semibold py-2 px-4 rounded-lg shadow-md">Profil</button>
+                <button id="logout-btn" class="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded-lg">Abmelden</button>
+            </div>
         </header>
 
         <div class="flex flex-col lg:flex-row gap-8">
@@ -115,21 +118,43 @@
     </div>
 
     <!-- Modals -->
-    <div id="postModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50 opacity-0 pointer-events-none modal-backdrop"><div class="bg-white rounded-2xl shadow-2xl w-full max-w-xl max-h-[90vh] flex flex-col modal-content transform scale-95"><div class="flex items-center justify-between p-6 border-b"><h3 class="text-2xl font-bold">Post Details</h3><button id="closeModalBtn" class="p-2 rounded-full hover:bg-gray-200 transition-colors"><svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg></button></div><div class="p-6 overflow-y-auto space-y-4"><input type="hidden" id="postId"><input type="hidden" id="postDate"><input type="hidden" id="postFolderId"><div><label for="postTitle" class="block text-sm font-medium text-gray-700 mb-1">Titel</label><input type="text" id="postTitle" class="w-full border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500" placeholder="Kurzer Titel für die Kalenderansicht"></div><div><label for="postStatus" class="block text-sm font-medium text-gray-700 mb-1">Status</label><select id="postStatus" class="w-full border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500"><option value="entwurf">Entwurf</option><option value="freigabe">Zur Freigabe</option><option value="geplant">Geplant</option><option value="veroeffentlicht">Veröffentlicht</option></select></div><div><label class="block text-sm font-medium text-gray-700 mb-2">Aufgaben-Checkliste</label><div id="taskListContainer" class="space-y-2 mb-3"></div><div class="flex gap-2"><input type="text" id="newTaskInput" placeholder="Neue Aufgabe hinzufügen..." class="flex-grow w-full border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500"><button id="addTaskBtn" class="bg-blue-100 text-blue-800 font-semibold px-4 py-2 rounded-lg hover:bg-blue-200 transition-colors">Add</button></div></div><div><label for="postCaption" class="block text-sm font-medium text-gray-700 mb-1">Caption</label><textarea id="postCaption" rows="6" class="w-full border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500" placeholder="Schreibe hier deinen Post-Text..."></textarea></div><div><label for="postHashtags" class="block text-sm font-medium text-gray-700 mb-1">Hashtags</label><input type="text" id="postHashtags" class="w-full border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500" placeholder="#planning #socialmedia ..."></div></div><div class="flex items-center justify-between p-6 border-t bg-gray-50 rounded-b-2xl"><button id="deletePostBtn" class="text-red-600 hover:text-red-800 font-semibold transition-colors">Post löschen</button><div class="flex items-center"><p id="modal-error" class="text-sm text-red-500 mr-4"></p><button id="cancelModalBtn" class="bg-white py-2 px-4 border border-gray-300 rounded-lg shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50">Abbrechen</button><button id="savePostBtn" class="ml-3 inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-lg text-white bg-blue-600 hover:bg-blue-700 disabled:opacity-50">Speichern</button></div></div></div></div>
+    <div id="postModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50 opacity-0 pointer-events-none modal-backdrop"><div class="bg-white rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] flex flex-col modal-content transform scale-95"><div class="flex items-center justify-between p-6 border-b"><h3 class="text-2xl font-bold">Post Details</h3><button id="closeModalBtn" class="p-2 rounded-full hover:bg-gray-200 transition-colors"><svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg></button></div><div class="flex-1 p-6 overflow-y-auto space-y-4"><input type="hidden" id="postId"><input type="hidden" id="postDate"><input type="hidden" id="postFolderId"><div><label for="postTitle" class="block text-sm font-medium text-gray-700 mb-1">Titel</label><input type="text" id="postTitle" class="w-full border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500" placeholder="Kurzer Titel für die Kalenderansicht"></div><div><label for="postStatus" class="block text-sm font-medium text-gray-700 mb-1">Status</label><select id="postStatus" class="w-full border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500"><option value="entwurf">Entwurf</option><option value="freigabe">Zur Freigabe</option><option value="geplant">Geplant</option><option value="veroeffentlicht">Veröffentlicht</option></select></div><div><label class="block text-sm font-medium text-gray-700 mb-2">Aufgaben-Checkliste</label><div id="taskListContainer" class="space-y-2 mb-3"></div><div class="flex gap-2"><input type="text" id="newTaskInput" placeholder="Neue Aufgabe hinzufügen..." class="flex-grow w-full border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500"><button id="addTaskBtn" class="bg-blue-100 text-blue-800 font-semibold px-4 py-2 rounded-lg hover:bg-blue-200 transition-colors">Add</button></div></div><div><label for="postCaption" class="block text-sm font-medium text-gray-700 mb-1">Caption</label><textarea id="postCaption" rows="6" class="w-full border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500" placeholder="Schreibe hier deinen Post-Text..."></textarea></div><div><label for="postHashtags" class="block text-sm font-medium text-gray-700 mb-1">Hashtags</label><input type="text" id="postHashtags" class="w-full border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500" placeholder="#planning #socialmedia ..."></div></div><div class="p-6 border-t"><h4 class="text-lg font-semibold mb-2">Kommentare</h4><div id="comments-container" class="space-y-4 max-h-48 overflow-y-auto mb-4"></div><div class="relative flex items-start gap-3"><img id="currentUserCommentAvatar" class="h-8 w-8 rounded-full object-cover"><div class="flex-1"><textarea id="new-comment-input" placeholder="Schreibe einen Kommentar... @ um jemanden zu erwähnen" class="w-full border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500"></textarea><button id="send-comment-btn" class="absolute right-2 bottom-2 bg-blue-600 text-white px-3 py-1 rounded-md text-sm font-semibold hover:bg-blue-700 disabled:opacity-50">Senden</button><div id="mention-suggestions" class="hidden absolute bottom-full left-0 w-full bg-white border rounded-lg shadow-lg max-h-40 overflow-y-auto"></div></div></div></div><div class="flex items-center justify-between p-6 border-t bg-gray-50 rounded-b-2xl"><button id="deletePostBtn" class="text-red-600 hover:text-red-800 font-semibold transition-colors">Post löschen</button><div class="flex items-center"><p id="modal-error" class="text-sm text-red-500 mr-4"></p><button id="cancelModalBtn" class="bg-white py-2 px-4 border border-gray-300 rounded-lg shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50">Abbrechen</button><button id="savePostBtn" class="ml-3 inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-lg text-white bg-blue-600 hover:bg-blue-700 disabled:opacity-50">Speichern</button></div></div></div></div>
     <div id="confirmationModal" class="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center p-4 z-[100] opacity-0 pointer-events-none transition-opacity duration-300 confirmation-backdrop"><div class="bg-white rounded-2xl shadow-2xl w-full max-w-sm p-6 text-center transform scale-95 transition-transform duration-300 confirmation-content"><h4 id="confirmationTitle" class="text-lg font-bold mb-2">Aktion bestätigen</h4><p id="confirmationMessage" class="text-gray-600 mb-6">Möchtest du wirklich fortfahren?</p><div class="flex justify-center gap-4"><button id="confirmCancelBtn" class="bg-white py-2 px-6 border border-gray-300 rounded-lg font-medium text-gray-700 hover:bg-gray-50">Abbrechen</button><button id="confirmActionBtn" class="py-2 px-6 border border-transparent rounded-lg font-medium text-white">Bestätigen</button></div></div></div>
-    
-    <!-- NEU: Folder Modal -->
-    <div id="folderModal" class="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center p-4 z-[100] opacity-0 pointer-events-none transition-opacity duration-300 confirmation-backdrop">
-        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-sm p-6 transform scale-95 transition-transform duration-300 confirmation-content">
-            <h4 id="folderModalTitle" class="text-lg font-bold mb-4">Ordner verwalten</h4>
-            <input type="hidden" id="folderId">
-            <div>
-                <label for="folderName" class="sr-only">Ordnername</label>
-                <input id="folderName" type="text" required class="appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm" placeholder="Name des Ordners">
+    <div id="folderModal" class="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center p-4 z-[100] opacity-0 pointer-events-none transition-opacity duration-300 confirmation-backdrop"><div class="bg-white rounded-2xl shadow-2xl w-full max-w-sm p-6 transform scale-95 transition-transform duration-300 confirmation-content"><h4 id="folderModalTitle" class="text-lg font-bold mb-4">Ordner verwalten</h4><input type="hidden" id="folderId"><div><label for="folderName" class="sr-only">Ordnername</label><input id="folderName" type="text" required class="appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm" placeholder="Name des Ordners"></div><div class="flex justify-end gap-4 mt-6"><button id="folderCancelBtn" class="bg-white py-2 px-6 border border-gray-300 rounded-lg font-medium text-gray-700 hover:bg-gray-50">Abbrechen</button><button id="folderSaveBtn" class="py-2 px-6 border border-transparent rounded-lg font-medium text-white bg-blue-600 hover:bg-blue-700">Speichern</button></div></div></div>
+    <div id="profileModal" class="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center p-4 z-[100] opacity-0 pointer-events-none transition-opacity duration-300 confirmation-backdrop">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md p-6 transform scale-95 transition-transform duration-300 confirmation-content">
+            <h4 class="text-lg font-bold mb-4">Profil bearbeiten</h4>
+            <div class="space-y-4">
+                <div class="flex items-center justify-center mb-4">
+                    <div class="relative">
+                        <img id="profileImagePreview" class="h-24 w-24 rounded-full object-cover" src="https://placehold.co/96x96/e2e8f0/475569?text=Profilbild">
+                        <label for="profileImageUpload" class="absolute -bottom-2 -right-2 cursor-pointer bg-blue-600 text-white p-2 rounded-full hover:bg-blue-700 transition-colors">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor"><path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" /></svg>
+                            <input id="profileImageUpload" type="file" class="sr-only" accept="image/*">
+                        </label>
+                    </div>
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label for="profileFirstName" class="block text-sm font-medium text-gray-700">Vorname</label>
+                        <input id="profileFirstName" type="text" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
+                    </div>
+                    <div>
+                        <label for="profileLastName" class="block text-sm font-medium text-gray-700">Nachname</label>
+                        <input id="profileLastName" type="text" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
+                    </div>
+                </div>
+                <div>
+                    <label for="profileEmail" class="block text-sm font-medium text-gray-700">E-Mail</label>
+                    <input id="profileEmail" type="email" disabled class="mt-1 block w-full border-gray-300 rounded-md shadow-sm bg-gray-100 text-gray-500">
+                </div>
+                <div>
+                    <button id="changePasswordBtn" class="text-sm font-medium text-blue-600 hover:text-blue-500">Passwort ändern...</button>
+                </div>
             </div>
             <div class="flex justify-end gap-4 mt-6">
-                <button id="folderCancelBtn" class="bg-white py-2 px-6 border border-gray-300 rounded-lg font-medium text-gray-700 hover:bg-gray-50">Abbrechen</button>
-                <button id="folderSaveBtn" class="py-2 px-6 border border-transparent rounded-lg font-medium text-white bg-blue-600 hover:bg-blue-700">Speichern</button>
+                <button id="profileCancelBtn" class="bg-white py-2 px-6 border border-gray-300 rounded-lg font-medium text-gray-700 hover:bg-gray-50">Abbrechen</button>
+                <button id="profileSaveBtn" class="py-2 px-6 border border-transparent rounded-lg font-medium text-white bg-blue-600 hover:bg-blue-700">Speichern</button>
             </div>
         </div>
     </div>
@@ -137,8 +162,9 @@
     <!-- Firebase SDKs -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
-        import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
-        import { getFirestore, collection, doc, addDoc, setDoc, deleteDoc, onSnapshot, query, getDoc, serverTimestamp, writeBatch } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
+        import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged, updatePassword } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
+        import { getFirestore, collection, doc, addDoc, setDoc, deleteDoc, onSnapshot, query, getDoc, serverTimestamp, writeBatch, orderBy } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
+        import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-storage.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyCiCG2qt3N6-Dw8Py3zXAD-4wOML56sccM",
@@ -153,23 +179,24 @@
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         const db = getFirestore(app);
+        const storage = getStorage(app);
 
         // --- STATE & DOM ---
         let currentDate = new Date();
         let localPosts = [];
         let localFolders = [];
-        const teamMembers = [
-            { id: 'pigi', name: 'Pigi', email: 'pierluigi@onvitec.ch' },
-            { id: 'sonja', name: 'Sonja', email: 'sonja@onvitec.ch' },
-            { id: 'ari', name: 'Ari', email: 'polidigital.online@gmail.com' }
-        ];
+        let allUsers = [];
+        let currentUserProfile = null;
         let unsubscribePosts = null; 
         let unsubscribeFolders = null;
+        let unsubscribeUsers = null;
+        let unsubscribeComments = null;
         let initialPostState = null;
         let confirmAction = null;
         let currentView = 'calendar';
         let authMode = 'login';
         let currentBoardFilter = 'all';
+        let newProfileImageFile = null;
 
         const authView = document.getElementById('auth-view');
         const mainAppView = document.getElementById('app');
@@ -181,6 +208,7 @@
         const userGreetingEl = document.getElementById('user-greeting');
         const nameFields = document.getElementById('name-fields');
         const logoutBtn = document.getElementById('logout-btn');
+        const profileBtn = document.getElementById('profile-btn');
         const calendarGrid = document.getElementById('calendarGrid');
         const currentMonthYearEl = document.getElementById('currentMonthYear');
         const prevMonthBtn = document.getElementById('prevMonthBtn');
@@ -213,6 +241,20 @@
         const folderNameInput = document.getElementById('folderName');
         const folderCancelBtn = document.getElementById('folderCancelBtn');
         const folderSaveBtn = document.getElementById('folderSaveBtn');
+        const profileModal = document.getElementById('profileModal');
+        const profileImagePreview = document.getElementById('profileImagePreview');
+        const profileImageUpload = document.getElementById('profileImageUpload');
+        const profileFirstNameInput = document.getElementById('profileFirstName');
+        const profileLastNameInput = document.getElementById('profileLastName');
+        const profileEmailInput = document.getElementById('profileEmail');
+        const changePasswordBtn = document.getElementById('changePasswordBtn');
+        const profileCancelBtn = document.getElementById('profileCancelBtn');
+        const profileSaveBtn = document.getElementById('profileSaveBtn');
+        const commentsContainer = document.getElementById('comments-container');
+        const newCommentInput = document.getElementById('new-comment-input');
+        const sendCommentBtn = document.getElementById('send-comment-btn');
+        const mentionSuggestions = document.getElementById('mention-suggestions');
+        const currentUserCommentAvatar = document.getElementById('currentUserCommentAvatar');
         const boardColumns = [{ id: 'entwurf', title: 'Entwurf' }, { id: 'freigabe', title: 'Zur Freigabe' }, { id: 'geplant', title: 'Geplant' }, { id: 'veroeffentlicht', title: 'Veröffentlicht' }];
 
         // --- HELPER FUNCTIONS ---
@@ -257,7 +299,8 @@
                     await setDoc(doc(db, "users", user.uid), {
                         firstName: firstName,
                         lastName: lastName,
-                        email: user.email
+                        email: user.email,
+                        photoURL: null
                     });
                 } catch (error) {
                     authError.textContent = error.message;
@@ -277,7 +320,8 @@
                 
                 const userDoc = await getDoc(doc(db, "users", user.uid));
                 if (userDoc.exists()) {
-                    userGreetingEl.textContent = `Hallo, ${userDoc.data().firstName}!`;
+                    currentUserProfile = { id: user.uid, ...userDoc.data() };
+                    userGreetingEl.textContent = `Hallo, ${currentUserProfile.firstName}!`;
                 } else {
                     userGreetingEl.textContent = `Hallo!`;
                 }
@@ -294,6 +338,11 @@
                     renderIdeaBank();
                 });
 
+                const usersColRef = collection(db, 'users');
+                unsubscribeUsers = onSnapshot(query(usersColRef), (snapshot) => {
+                    allUsers = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                });
+
 
             } else {
                 authView.classList.remove('hidden');
@@ -301,8 +350,11 @@
                 userGreetingEl.textContent = '';
                 if (unsubscribePosts) unsubscribePosts();
                 if (unsubscribeFolders) unsubscribeFolders();
+                if (unsubscribeUsers) unsubscribeUsers();
                 localPosts = [];
                 localFolders = [];
+                allUsers = [];
+                currentUserProfile = null;
             }
         });
         
@@ -359,6 +411,17 @@
 
             await deleteDoc(doc(db, 'users', user.uid, 'folders', folderId));
         };
+        
+        const saveComment = async (postId, text) => {
+            const user = auth.currentUser;
+            if (!user || !postId || !text) return;
+            const commentsColRef = collection(db, 'users', user.uid, 'posts', postId, 'comments');
+            await addDoc(commentsColRef, {
+                text: text,
+                authorId: user.uid,
+                createdAt: serverTimestamp()
+            });
+        };
 
         // --- MODALS ---
         const openConfirmationModal = (config) => {
@@ -379,8 +442,10 @@
             modal.classList.remove('opacity-0', 'pointer-events-none');
             modal.querySelector('.modal-content').classList.remove('scale-95');
             setTimeout(() => initialPostState = getFormState(), 200); 
+            currentUserCommentAvatar.src = currentUserProfile?.photoURL || 'https://placehold.co/32x32/e2e8f0/475569?text=?';
         };
         const closeModal = () => {
+            if (unsubscribeComments) unsubscribeComments();
             modal.classList.add('opacity-0', 'pointer-events-none');
             modal.querySelector('.modal-content').classList.add('scale-95');
             resetModalForm();
@@ -394,6 +459,7 @@
             document.getElementById('postHashtags').value = '';
             document.getElementById('postStatus').value = 'entwurf';
             taskListContainer.innerHTML = '';
+            commentsContainer.innerHTML = '';
             initialPostState = null;
             modalError.textContent = '';
             savePostBtn.disabled = false;
@@ -409,6 +475,15 @@
             document.getElementById('postHashtags').value = post.hashtags;
             document.getElementById('postStatus').value = post.status;
             renderTasks(post.tasks || []);
+
+            const user = auth.currentUser;
+            if (user && post.id) {
+                const commentsColRef = collection(db, 'users', user.uid, 'posts', post.id, 'comments');
+                unsubscribeComments = onSnapshot(query(commentsColRef, orderBy("createdAt", "asc")), (snapshot) => {
+                    const comments = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                    renderComments(comments);
+                });
+            }
         };
         
         const openFolderModal = (folderId = null, currentName = '') => {
@@ -423,7 +498,27 @@
             folderModal.querySelector('.confirmation-content').classList.add('scale-95');
         };
         
-        // --- TASKS ---
+        const openProfileModal = async () => {
+            newProfileImageFile = null;
+            const user = auth.currentUser;
+            if (!user) return;
+            const userDoc = await getDoc(doc(db, "users", user.uid));
+            if (userDoc.exists()) {
+                const data = userDoc.data();
+                profileFirstNameInput.value = data.firstName || '';
+                profileLastNameInput.value = data.lastName || '';
+                profileEmailInput.value = data.email || '';
+                profileImagePreview.src = data.photoURL || 'https://placehold.co/96x96/e2e8f0/475569?text=Profilbild';
+            }
+            profileModal.classList.remove('opacity-0', 'pointer-events-none');
+            profileModal.querySelector('.confirmation-content').classList.remove('scale-95');
+        };
+        const closeProfileModal = () => {
+            profileModal.classList.add('opacity-0', 'pointer-events-none');
+            profileModal.querySelector('.confirmation-content').classList.add('scale-95');
+        };
+        
+        // --- TASKS & COMMENTS ---
         const renderTasks = (tasks = []) => {
             taskListContainer.innerHTML = '';
             tasks.forEach(task => {
@@ -431,7 +526,7 @@
                 taskItem.className = 'task-item flex items-center gap-2 bg-gray-50 p-2 rounded-lg';
                 taskItem.dataset.taskId = task.id;
                 
-                const userOptions = teamMembers.map(user => `<option value="${user.id}" ${task.assignedTo === user.id ? 'selected' : ''}>${user.name}</option>`).join('');
+                const userOptions = allUsers.map(user => `<option value="${user.id}" ${task.assignedTo === user.id ? 'selected' : ''}>${user.firstName}</option>`).join('');
                 
                 taskItem.innerHTML = `
                     <input type="checkbox" class="task-checkbox h-5 w-5 rounded border-gray-300 text-blue-600 focus:ring-blue-500" ${task.completed ? 'checked' : ''}>
@@ -449,6 +544,29 @@
             const tasks = getTasksFromDOM();
             tasks.push({ id: `task-${Date.now()}`, text: text, completed: false, assignedTo: '' });
             renderTasks(tasks);
+        };
+
+        const renderComments = (comments) => {
+            commentsContainer.innerHTML = '';
+            comments.forEach(comment => {
+                const author = allUsers.find(u => u.id === comment.authorId);
+                const commentEl = document.createElement('div');
+                commentEl.className = 'flex items-start gap-3';
+                const authorName = author ? author.firstName : 'Unbekannt';
+                const authorPhoto = author ? author.photoURL || 'https://placehold.co/32x32/e2e8f0/475569?text=?' : 'https://placehold.co/32x32/e2e8f0/475569?text=?';
+
+                let commentText = comment.text.replace(/@\[(.+?)\]\((.+?)\)/g, '<strong class="text-blue-600">@$1</strong>');
+
+                commentEl.innerHTML = `
+                    <img src="${authorPhoto}" class="h-8 w-8 rounded-full object-cover">
+                    <div class="flex-1">
+                        <p class="font-semibold text-sm">${authorName} <span class="text-gray-500 font-normal text-xs">${comment.createdAt?.toDate().toLocaleString('de-DE') || ''}</span></p>
+                        <p class="text-gray-700">${commentText}</p>
+                    </div>
+                `;
+                commentsContainer.appendChild(commentEl);
+            });
+            commentsContainer.scrollTop = commentsContainer.scrollHeight;
         };
 
         // --- RENDER LOGIC ---
@@ -649,10 +767,10 @@
              allBtn.className = `board-filter-btn px-3 py-1 rounded-full text-sm font-semibold transition-colors`;
              boardFilterContainer.appendChild(allBtn);
 
-             teamMembers.forEach(member => {
+             allUsers.forEach(user => {
                 const memberBtn = document.createElement('button');
-                memberBtn.dataset.filter = member.id;
-                memberBtn.textContent = member.name;
+                memberBtn.dataset.filter = user.id;
+                memberBtn.textContent = user.firstName;
                 memberBtn.className = `board-filter-btn px-3 py-1 rounded-full text-sm font-semibold transition-colors`;
                 boardFilterContainer.appendChild(memberBtn);
              });
@@ -791,6 +909,118 @@
                     confirmClass: 'bg-red-600 hover:bg-red-700',
                     onConfirm: () => deleteFolder(folderId)
                 });
+            }
+        });
+
+        profileBtn.addEventListener('click', openProfileModal);
+        profileCancelBtn.addEventListener('click', closeProfileModal);
+        profileSaveBtn.addEventListener('click', async () => {
+            const user = auth.currentUser;
+            if (!user) return;
+
+            profileSaveBtn.disabled = true;
+            profileSaveBtn.innerHTML = `<svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg> Speichern...`;
+
+            try {
+                const newFirstName = profileFirstNameInput.value.trim();
+                const newLastName = profileLastNameInput.value.trim();
+                
+                if (!newFirstName || !newLastName) {
+                    alert("Bitte Vor- und Nachname angeben.");
+                    return;
+                }
+
+                const userDataToUpdate = {
+                    firstName: newFirstName,
+                    lastName: newLastName,
+                };
+
+                if (newProfileImageFile) {
+                    const storageRef = ref(storage, `users/${user.uid}/profile.jpg`);
+                    await uploadBytes(storageRef, newProfileImageFile);
+                    const downloadURL = await getDownloadURL(storageRef);
+                    userDataToUpdate.photoURL = downloadURL;
+                }
+                
+                await setDoc(doc(db, "users", user.uid), userDataToUpdate, { merge: true });
+                userGreetingEl.textContent = `Hallo, ${newFirstName}!`;
+                alert("Profil erfolgreich aktualisiert!");
+                closeProfileModal();
+                
+            } catch (error) {
+                console.error("Fehler beim Speichern des Profils:", error);
+                alert("Fehler: Das Profil konnte nicht gespeichert werden.");
+            } finally {
+                profileSaveBtn.disabled = false;
+                profileSaveBtn.innerHTML = 'Speichern';
+                newProfileImageFile = null;
+            }
+        });
+
+        changePasswordBtn.addEventListener('click', () => {
+            const newPassword = prompt("Bitte gib dein neues Passwort ein:");
+            if (newPassword && newPassword.length >= 6) {
+                updatePassword(auth.currentUser, newPassword).then(() => {
+                    alert("Passwort erfolgreich geändert!");
+                }).catch((error) => {
+                    console.error("Fehler beim Ändern des Passworts:", error);
+                    alert("Fehler: Das Passwort konnte nicht geändert werden. Bitte logge dich erneut ein und versuche es noch einmal.");
+                });
+            } else if (newPassword) {
+                alert("Fehler: Das Passwort muss mindestens 6 Zeichen lang sein.");
+            }
+        });
+
+        profileImageUpload.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+            newProfileImageFile = file;
+            const reader = new FileReader();
+            reader.onload = (event) => {
+                profileImagePreview.src = event.target.result;
+            };
+            reader.readAsDataURL(file);
+        });
+
+        sendCommentBtn.addEventListener('click', async () => {
+            const postId = document.getElementById('postId').value;
+            const text = newCommentInput.value.trim();
+            if (text && postId) {
+                sendCommentBtn.disabled = true;
+                await saveComment(postId, text);
+                newCommentInput.value = '';
+                sendCommentBtn.disabled = false;
+            }
+        });
+
+        newCommentInput.addEventListener('input', () => {
+            const text = newCommentInput.value;
+            const mentionMatch = text.match(/@(\w*)$/);
+
+            if (mentionMatch) {
+                const searchTerm = mentionMatch[1].toLowerCase();
+                const suggestions = allUsers.filter(u => u.firstName.toLowerCase().startsWith(searchTerm));
+                
+                if (suggestions.length > 0) {
+                    mentionSuggestions.innerHTML = '';
+                    suggestions.forEach(user => {
+                        const suggestionEl = document.createElement('div');
+                        suggestionEl.className = 'p-2 hover:bg-gray-100 cursor-pointer';
+                        suggestionEl.textContent = user.firstName;
+                        suggestionEl.onclick = () => {
+                            const newText = text.replace(/@\w*$/, `@${user.firstName} `);
+                            newCommentInput.value = newText;
+                            mentionSuggestions.classList.add('hidden');
+                            newCommentInput.focus();
+                        };
+                        mentionSuggestions.appendChild(suggestionEl);
+                    });
+                    mentionSuggestions.classList.remove('hidden');
+                } else {
+                    mentionSuggestions.classList.add('hidden');
+                }
+            } else {
+                mentionSuggestions.classList.add('hidden');
             }
         });
 
