@@ -926,7 +926,7 @@
                 const newLastName = profileLastNameInput.value.trim();
                 
                 if (!newFirstName || !newLastName) {
-                    alert("Bitte Vor- und Nachname angeben.");
+                    openConfirmationModal({ title: "Fehler", message: "Bitte Vor- und Nachname angeben.", confirmText: "OK", confirmClass: "bg-blue-600" });
                     return;
                 }
 
@@ -944,12 +944,12 @@
                 
                 await setDoc(doc(db, "users", user.uid), userDataToUpdate, { merge: true });
                 userGreetingEl.textContent = `Hallo, ${newFirstName}!`;
-                alert("Profil erfolgreich aktualisiert!");
+                openConfirmationModal({ title: "Erfolg", message: "Profil erfolgreich aktualisiert!", confirmText: "OK", confirmClass: "bg-blue-600" });
                 closeProfileModal();
                 
             } catch (error) {
                 console.error("Fehler beim Speichern des Profils:", error);
-                alert("Fehler: Das Profil konnte nicht gespeichert werden.");
+                openConfirmationModal({ title: "Fehler", message: "Das Profil konnte nicht gespeichert werden.", confirmText: "OK", confirmClass: "bg-red-600" });
             } finally {
                 profileSaveBtn.disabled = false;
                 profileSaveBtn.innerHTML = 'Speichern';
@@ -961,13 +961,13 @@
             const newPassword = prompt("Bitte gib dein neues Passwort ein:");
             if (newPassword && newPassword.length >= 6) {
                 updatePassword(auth.currentUser, newPassword).then(() => {
-                    alert("Passwort erfolgreich geändert!");
+                    openConfirmationModal({ title: "Erfolg", message: "Passwort erfolgreich geändert!", confirmText: "OK", confirmClass: "bg-blue-600" });
                 }).catch((error) => {
                     console.error("Fehler beim Ändern des Passworts:", error);
-                    alert("Fehler: Das Passwort konnte nicht geändert werden. Bitte logge dich erneut ein und versuche es noch einmal.");
+                    openConfirmationModal({ title: "Fehler", message: "Das Passwort konnte nicht geändert werden. Bitte logge dich erneut ein.", confirmText: "OK", confirmClass: "bg-red-600" });
                 });
             } else if (newPassword) {
-                alert("Fehler: Das Passwort muss mindestens 6 Zeichen lang sein.");
+                openConfirmationModal({ title: "Fehler", message: "Das Passwort muss mindestens 6 Zeichen lang sein.", confirmText: "OK", confirmClass: "bg-red-600" });
             }
         });
 
