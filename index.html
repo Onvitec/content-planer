@@ -173,7 +173,7 @@
             apiKey: "AIzaSyCiCG2qt3N6-Dw8Py3zXAD-4wOML56sccM",
             authDomain: "onvitec-content-planer.firebaseapp.com",
             projectId: "onvitec-content-planer",
-            storageBucket: "onvitec-content-planer.firebasestorage.app",
+            storageBucket: "onvitec-content-planer.appspot.com",
             messagingSenderId: "273056072477",
             appId: "1:273056072477:web:56e9d5856a50144c2a97f4",
             measurementId: "G-R71BDC8F11"
@@ -507,6 +507,7 @@
             newProfileImageURL = null;
             uploadProgressContainer.classList.add('hidden');
             profileSaveBtn.disabled = false;
+            profileSaveBtn.innerHTML = 'Speichern';
             const user = auth.currentUser;
             if (!user) return;
             const userDoc = await getDoc(doc(db, "users", user.uid));
@@ -944,7 +945,6 @@
                     lastName: newLastName,
                 };
                 
-                // KORREKTUR: Nur die neue URL speichern, wenn eine neue Datei hochgeladen wurde
                 if (newProfileImageURL) {
                     userDataToUpdate.photoURL = newProfileImageURL;
                 }
@@ -986,7 +986,6 @@
             const user = auth.currentUser;
             if (!user) return;
 
-            // KORREKTUR: Robuster Upload-Prozess
             profileSaveBtn.disabled = true;
             uploadProgressContainer.classList.remove('hidden');
             uploadProgressBar.style.width = '0%';
@@ -1007,7 +1006,7 @@
                 }, 
                 async () => {
                     const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
-                    newProfileImageURL = downloadURL; // URL für den späteren Speicherprozess merken
+                    newProfileImageURL = downloadURL;
                     profileImagePreview.src = downloadURL;
                     uploadProgressContainer.classList.add('hidden');
                     profileSaveBtn.disabled = false;
