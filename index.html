@@ -127,7 +127,7 @@
     </div>
 
     <!-- Modals -->
-    <div id="postModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50 opacity-0 pointer-events-none modal-backdrop"><div class="bg-white rounded-2xl shadow-2xl w-full max-w-4xl max-h-[95vh] flex flex-col modal-content transform scale-95"><div class="flex items-center justify-between p-6 border-b"><h3 class="text-2xl font-bold">Post Details</h3><button id="closeModalBtn" class="p-2 rounded-full hover:bg-gray-200 transition-colors"><svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg></button></div><div class="flex-1 p-6 overflow-y-auto space-y-4"><input type="hidden" id="postId"><input type="hidden" id="postDate"><input type="hidden" id="postFolderId"><div><label for="postTitle" class="block text-sm font-medium text-gray-700 mb-1">Titel</label><input type="text" id="postTitle" class="w-full border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500" placeholder="Kurzer Titel für die Kalenderansicht"></div><div><label for="postStatus" class="block text-sm font-medium text-gray-700 mb-1">Status</label><select id="postStatus" class="w-full border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500"><option value="entwurf">Entwurf</option><option value="freigabe">Zur Freigabe</option><option value="geplant">Geplant</option><option value="veroeffentlicht">Veröffentlicht</option></select></div><div><label class="block text-sm font-medium text-gray-700 mb-2">Aufgaben-Checkliste</label><div id="taskListContainer" class="space-y-2 mb-3"></div><div class="flex gap-2"><input type="text" id="newTaskInput" placeholder="Neue Aufgabe hinzufügen..." class="flex-grow w-full border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500"><button id="addTaskBtn" class="bg-blue-100 text-blue-800 font-semibold px-4 py-2 rounded-lg hover:bg-blue-200 transition-colors">Add</button></div></div><div><label for="postCaption" class="block text-sm font-medium text-gray-700 mb-1">Caption</label><textarea id="postCaption" rows="6" class="w-full border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500" placeholder="Schreibe hier deinen Post-Text..."></textarea></div><div><label for="postHashtags" class="block text-sm font-medium text-gray-700 mb-1">Hashtags</label><input type="text" id="postHashtags" class="w-full border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500" placeholder="#planning #socialmedia ..."></div></div><div class="p-6 border-t"><details><summary class="text-lg font-semibold cursor-pointer list-none flex justify-between items-center">Kommentare <span class="summary-arrow text-gray-500">&#9660;</span></summary><div class="mt-4"><div id="comments-container" class="space-y-4 max-h-48 overflow-y-auto mb-4"></div><div class="relative flex items-start gap-3"><div class="flex-1"><textarea id="new-comment-input" placeholder="Schreibe einen Kommentar... @ um jemanden zu erwähnen" class="w-full border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500 pr-12"></textarea><button id="send-comment-btn" class="absolute right-2 bottom-2 bg-blue-600 text-white p-2 rounded-full hover:bg-blue-700 disabled:opacity-50"><svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path d="M10.894 2.553a1 1 0 00-1.788 0l-7 14a1 1 0 001.169 1.409l5-1.429A1 1 0 009 15.571V11a1 1 0 112 0v4.571a1 1 0 00.725.962l5 1.428a1 1 0 001.17-1.408l-7-14z" /></svg></button><div id="mention-suggestions" class="hidden absolute bottom-full left-0 w-full bg-white border rounded-lg shadow-lg max-h-40 overflow-y-auto"></div></div></div></div></details></div><div class="flex items-center justify-between p-6 border-t bg-gray-50 rounded-b-2xl"><div class="flex gap-4"><button id="exportPdfBtn" class="text-blue-600 hover:text-blue-800 font-semibold transition-colors">Export als PDF</button><button id="deletePostBtn" class="text-red-600 hover:text-red-800 font-semibold transition-colors">Post löschen</button></div><div class="flex items-center"><p id="modal-error" class="text-sm text-red-500 mr-4"></p><button id="cancelModalBtn" class="bg-white py-2 px-4 border border-gray-300 rounded-lg shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50">Abbrechen</button><button id="savePostBtn" class="ml-3 inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-lg text-white bg-blue-600 hover:bg-blue-700 disabled:opacity-50">Speichern</button></div></div></div></div>
+    <div id="postModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50 opacity-0 pointer-events-none modal-backdrop"><div class="bg-white rounded-2xl shadow-2xl w-full max-w-5xl max-h-[95vh] flex flex-col modal-content transform scale-95"><div class="flex items-center justify-between p-6 border-b"><h3 class="text-2xl font-bold">Post Details</h3><button id="closeModalBtn" class="p-2 rounded-full hover:bg-gray-200 transition-colors"><svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg></button></div><div class="flex-1 p-6 overflow-y-auto space-y-4"><input type="hidden" id="postId"><input type="hidden" id="postDate"><input type="hidden" id="postFolderId"><div><label for="postTitle" class="block text-base font-semibold text-gray-800 mb-1">Titel</label><input type="text" id="postTitle" class="w-full border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500" placeholder="Kurzer Titel für die Kalenderansicht"></div><div><label for="postStatus" class="block text-base font-semibold text-gray-800 mb-1">Status</label><select id="postStatus" class="w-full border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500"><option value="entwurf">Entwurf</option><option value="freigabe">Zur Freigabe</option><option value="geplant">Geplant</option><option value="veroeffentlicht">Veröffentlicht</option></select></div><div><label class="block text-base font-semibold text-gray-800 mb-2">Aufgaben-Checkliste</label><div id="taskListContainer" class="space-y-2 mb-3"></div><div class="flex gap-2"><input type="text" id="newTaskInput" placeholder="Neue Aufgabe hinzufügen..." class="flex-grow w-full border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500"><button id="addTaskBtn" class="bg-blue-100 text-blue-800 font-semibold px-4 py-2 rounded-lg hover:bg-blue-200 transition-colors">Add</button></div></div><div><label for="postText" class="block text-base font-semibold text-gray-800 mb-1">Text</label><textarea id="postText" rows="16" class="w-full border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500" placeholder="Schreibe hier deinen Text..."></textarea></div><div><label for="postHashtags" class="block text-base font-semibold text-gray-800 mb-1">Hashtags</label><input type="text" id="postHashtags" class="w-full border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500" placeholder="#planning #socialmedia ..."></div></div><div class="p-6 border-t"><details><summary class="text-lg font-semibold cursor-pointer list-none flex justify-between items-center">Kommentare <span class="summary-arrow text-gray-500">&#9660;</span></summary><div class="mt-4"><div id="comments-container" class="space-y-4 max-h-48 overflow-y-auto mb-4"></div><div class="relative flex items-start gap-3"><div class="flex-1"><textarea id="new-comment-input" placeholder="Schreibe einen Kommentar... @ um jemanden zu erwähnen" class="w-full border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500 pr-12"></textarea><button id="send-comment-btn" class="absolute right-2 bottom-2 bg-blue-600 text-white p-2 rounded-full hover:bg-blue-700 disabled:opacity-50"><svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path d="M10.894 2.553a1 1 0 00-1.788 0l-7 14a1 1 0 001.169 1.409l5-1.429A1 1 0 009 15.571V11a1 1 0 112 0v4.571a1 1 0 00.725.962l5 1.428a1 1 0 001.17-1.408l-7-14z" /></svg></button><div id="mention-suggestions" class="hidden absolute bottom-full left-0 w-full bg-white border rounded-lg shadow-lg max-h-40 overflow-y-auto"></div></div></div></div></details></div><div class="flex items-center justify-between p-6 border-t bg-gray-50 rounded-b-2xl"><div class="flex gap-4"><button id="exportPdfBtn" class="text-blue-600 hover:text-blue-800 font-semibold transition-colors">Export als PDF</button><button id="deletePostBtn" class="text-red-600 hover:text-red-800 font-semibold transition-colors">Post löschen</button></div><div class="flex items-center"><p id="modal-error" class="text-sm text-red-500 mr-4"></p><button id="cancelModalBtn" class="bg-white py-2 px-4 border border-gray-300 rounded-lg shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50">Abbrechen</button><button id="savePostBtn" class="ml-3 inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-lg text-white bg-blue-600 hover:bg-blue-700 disabled:opacity-50">Speichern</button></div></div></div></div>
     <div id="confirmationModal" class="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center p-4 z-[100] opacity-0 pointer-events-none transition-opacity duration-300 confirmation-backdrop"><div class="bg-white rounded-2xl shadow-2xl w-full max-w-sm p-6 text-center transform scale-95 transition-transform duration-300 confirmation-content"><h4 id="confirmationTitle" class="text-lg font-bold mb-2">Aktion bestätigen</h4><p id="confirmationMessage" class="text-gray-600 mb-6">Möchtest du wirklich fortfahren?</p><div class="flex justify-center gap-4"><button id="confirmCancelBtn" class="bg-white py-2 px-6 border border-gray-300 rounded-lg font-medium text-gray-700 hover:bg-gray-50">Abbrechen</button><button id="confirmActionBtn" class="py-2 px-6 border border-transparent rounded-lg font-medium text-white">Bestätigen</button></div></div></div>
     <div id="folderModal" class="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center p-4 z-[100] opacity-0 pointer-events-none transition-opacity duration-300 confirmation-backdrop"><div class="bg-white rounded-2xl shadow-2xl w-full max-w-sm p-6 transform scale-95 transition-transform duration-300 confirmation-content"><h4 id="folderModalTitle" class="text-lg font-bold mb-4">Ordner verwalten</h4><input type="hidden" id="folderId"><div><label for="folderName" class="sr-only">Ordnername</label><input id="folderName" type="text" required class="appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm" placeholder="Name des Ordners"></div><div class="flex justify-end gap-4 mt-6"><button id="folderCancelBtn" class="bg-white py-2 px-6 border border-gray-300 rounded-lg font-medium text-gray-700 hover:bg-gray-50">Abbrechen</button><button id="folderSaveBtn" class="py-2 px-6 border border-transparent rounded-lg font-medium text-white bg-blue-600 hover:bg-blue-700">Speichern</button></div></div></div>
     <div id="profileModal" class="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center p-4 z-[100] opacity-0 pointer-events-none transition-opacity duration-300 confirmation-backdrop">
@@ -262,7 +262,7 @@
         const getFullFormState = () => {
             return {
                 title: document.getElementById('postTitle').value,
-                caption: document.getElementById('postCaption').value,
+                caption: document.getElementById('postText').value,
                 hashtags: document.getElementById('postHashtags').value,
                 status: document.getElementById('postStatus').value,
                 tasks: getTasksFromDOM()
@@ -450,7 +450,7 @@
             document.getElementById('postDate').value = '';
             document.getElementById('postFolderId').value = '';
             document.getElementById('postTitle').value = '';
-            document.getElementById('postCaption').value = '';
+            document.getElementById('postText').value = '';
             document.getElementById('postHashtags').value = '';
             document.getElementById('postStatus').value = 'entwurf';
             taskListContainer.innerHTML = '';
@@ -467,7 +467,7 @@
             document.getElementById('postDate').value = post.date || '';
             document.getElementById('postFolderId').value = post.folderId || '';
             document.getElementById('postTitle').value = post.title;
-            document.getElementById('postCaption').value = post.caption;
+            document.getElementById('postText').value = post.caption || ''; // Use caption for backward compatibility
             document.getElementById('postHashtags').value = post.hashtags;
             document.getElementById('postStatus').value = post.status;
             
@@ -904,10 +904,51 @@
 
         // --- DYNAMIC POST TYPE FIELDS ---
         const updatePostTypeFields = (type, details = {}) => {
-            // This function is now empty as the feature is removed.
             const postTypeFieldsContainer = document.getElementById('post-type-fields');
-            if(postTypeFieldsContainer) {
-                postTypeFieldsContainer.innerHTML = '';
+            if(!postTypeFieldsContainer) return;
+
+            postTypeFieldsContainer.innerHTML = ''; // Clear previous fields
+            switch (type) {
+                case 'reel':
+                    postTypeFieldsContainer.innerHTML = `
+                        <div><label for="reel-script" class="block text-sm font-medium text-gray-700 mb-1">Skript</label><textarea id="reel-script" rows="4" class="w-full border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500" placeholder="Was wird gesagt?">${details.script || ''}</textarea></div>
+                    `;
+                    break;
+                case 'carousel':
+                    postTypeFieldsContainer.innerHTML = `
+                        <div><label for="carousel-title" class="block text-sm font-medium text-gray-700 mb-1">Titel</label><input type="text" id="carousel-title" class="w-full border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500" placeholder="Titel für das Karussell" value="${details.title || ''}"></div>
+                        <div id="carousel-slides-container" class="space-y-3"></div>
+                        <button type="button" id="add-carousel-slide-btn" class="text-sm font-medium text-blue-600 hover:text-blue-500">+ Slide hinzufügen</button>
+                    `;
+                    const slidesContainer = document.getElementById('carousel-slides-container');
+                    const addSlideBtn = document.getElementById('add-carousel-slide-btn');
+
+                    const addSlide = (text = '') => {
+                        const slideCount = slidesContainer.children.length + 1;
+                        const slideWrapper = document.createElement('div');
+                        slideWrapper.className = 'relative';
+                        slideWrapper.innerHTML = `
+                            <label for="carousel-slide-${slideCount}" class="block text-sm font-medium text-gray-700 mb-1">Slide ${slideCount}</label>
+                            <textarea id="carousel-slide-${slideCount}" rows="3" class="carousel-slide-text w-full border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500" placeholder="Text für Slide ${slideCount}...">${text}</textarea>
+                            <button type="button" class="remove-slide-btn absolute top-0 right-0 mt-1 mr-1 text-gray-400 hover:text-red-500 p-1">&times;</button>
+                        `;
+                        slidesContainer.appendChild(slideWrapper);
+                    };
+
+                    (details.slides || [{ text: '' }]).forEach(slide => addSlide(slide.text));
+                    addSlideBtn.addEventListener('click', () => addSlide());
+                    slidesContainer.addEventListener('click', e => {
+                        if (e.target.classList.contains('remove-slide-btn')) {
+                            e.target.parentElement.remove();
+                            slidesContainer.querySelectorAll('label').forEach((label, index) => {
+                                label.textContent = `Slide ${index + 1}`;
+                            });
+                        }
+                    });
+                    break;
+                case 'single':
+                    // No fields for single post type
+                    break;
             }
         };
 
@@ -1243,7 +1284,7 @@
             y += 10;
 
             // --- Caption ---
-            doc.setFontSize(14); doc.setFont("helvetica", "bold"); doc.text("Caption", margin, y); y += 7;
+            doc.setFontSize(14); doc.setFont("helvetica", "bold"); doc.text("Text", margin, y); y += 7;
             doc.setFontSize(11); doc.setFont("helvetica", "normal");
             doc.text(doc.splitTextToSize(postData.caption, maxWidth), margin, y);
             y += doc.getTextDimensions(doc.splitTextToSize(postData.caption, maxWidth)).h + 10;
@@ -1268,6 +1309,10 @@
 
         // --- INITIALIZATION ---
         updateAuthUI();
+        const postTypeSelect = document.getElementById('postType');
+        if (postTypeSelect) {
+            postTypeSelect.addEventListener('change', (e) => updatePostTypeFields(e.target.value));
+        }
 
     </script>
 </body>
