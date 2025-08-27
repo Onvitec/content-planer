@@ -99,12 +99,14 @@
                         <button id="nextMonthBtn" class="p-2 rounded-full hover:bg-gray-200 transition-colors"><svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" /></svg></button>
                     </div>
                     <div id="viewSwitcher" class="flex items-center gap-2 rounded-full bg-gray-200 p-1">
+                        <button data-view="dashboard" class="view-btn p-2 rounded-full transition-colors"><svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z" /></svg></button>
                         <button data-view="calendar" class="view-btn p-2 rounded-full transition-colors"><svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clip-rule="evenodd" /></svg></button>
                         <button data-view="board" class="view-btn p-2 rounded-full transition-colors"><svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path d="M2 4a1 1 0 011-1h2a1 1 0 011 1v12a1 1 0 01-1 1H3a1 1 0 01-1-1V4zM8 4a1 1 0 011-1h2a1 1 0 011 1v12a1 1 0 01-1 1H9a1 1 0 01-1-1V4zM15 3a1 1 0 00-1 1v12a1 1 0 001 1h2a1 1 0 001-1V4a1 1 0 00-1-1h-2z" /></svg></button>
                     </div>
                 </div>
 
                 <main id="mainViewContainer">
+                     <div id="dashboardView" class="hidden"></div>
                      <div id="calendarView" class="bg-white p-2 sm:p-4 rounded-2xl shadow-lg"><div class="calendar-grid mb-2"><div class="text-center font-semibold text-gray-600 py-2">So</div><div class="text-center font-semibold text-gray-600 py-2">Mo</div><div class="text-center font-semibold text-gray-600 py-2">Di</div><div class="text-center font-semibold text-gray-600 py-2">Mi</div><div class="text-center font-semibold text-gray-600 py-2">Do</div><div class="text-center font-semibold text-gray-600 py-2">Fr</div><div class="text-center font-semibold text-gray-600 py-2">Sa</div></div><div id="calendarGrid" class="calendar-grid"></div></div>
                      <div id="boardView" class="hidden">
                          <div id="board-filter-container" class="flex items-center gap-2 mb-4 bg-white p-3 rounded-2xl shadow-md">
@@ -118,7 +120,7 @@
     </div>
 
     <!-- Modals -->
-    <div id="postModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50 opacity-0 pointer-events-none modal-backdrop"><div class="bg-white rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] flex flex-col modal-content transform scale-95"><div class="flex items-center justify-between p-6 border-b"><h3 class="text-2xl font-bold">Post Details</h3><button id="closeModalBtn" class="p-2 rounded-full hover:bg-gray-200 transition-colors"><svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg></button></div><div class="flex-1 p-6 overflow-y-auto space-y-4"><input type="hidden" id="postId"><input type="hidden" id="postDate"><input type="hidden" id="postFolderId"><div><label for="postTitle" class="block text-sm font-medium text-gray-700 mb-1">Titel</label><input type="text" id="postTitle" class="w-full border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500" placeholder="Kurzer Titel für die Kalenderansicht"></div><div><label for="postStatus" class="block text-sm font-medium text-gray-700 mb-1">Status</label><select id="postStatus" class="w-full border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500"><option value="entwurf">Entwurf</option><option value="freigabe">Zur Freigabe</option><option value="geplant">Geplant</option><option value="veroeffentlicht">Veröffentlicht</option></select></div><div><label class="block text-sm font-medium text-gray-700 mb-2">Aufgaben-Checkliste</label><div id="taskListContainer" class="space-y-2 mb-3"></div><div class="flex gap-2"><input type="text" id="newTaskInput" placeholder="Neue Aufgabe hinzufügen..." class="flex-grow w-full border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500"><button id="addTaskBtn" class="bg-blue-100 text-blue-800 font-semibold px-4 py-2 rounded-lg hover:bg-blue-200 transition-colors">Add</button></div></div><div><label for="postCaption" class="block text-sm font-medium text-gray-700 mb-1">Caption</label><textarea id="postCaption" rows="6" class="w-full border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500" placeholder="Schreibe hier deinen Post-Text..."></textarea></div><div><label for="postHashtags" class="block text-sm font-medium text-gray-700 mb-1">Hashtags</label><input type="text" id="postHashtags" class="w-full border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500" placeholder="#planning #socialmedia ..."></div></div><div class="p-6 border-t"><h4 class="text-lg font-semibold mb-2">Kommentare</h4><div id="comments-container" class="space-y-4 max-h-48 overflow-y-auto mb-4"></div><div class="relative flex items-start gap-3"><div class="flex-1"><textarea id="new-comment-input" placeholder="Schreibe einen Kommentar... @ um jemanden zu erwähnen" class="w-full border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500 pr-12"></textarea><button id="send-comment-btn" class="absolute right-2 bottom-2 bg-blue-600 text-white p-2 rounded-full hover:bg-blue-700 disabled:opacity-50"><svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path d="M10.894 2.553a1 1 0 00-1.788 0l-7 14a1 1 0 001.169 1.409l5-1.429A1 1 0 009 15.571V11a1 1 0 112 0v4.571a1 1 0 00.725.962l5 1.428a1 1 0 001.17-1.408l-7-14z" /></svg></button><div id="mention-suggestions" class="hidden absolute bottom-full left-0 w-full bg-white border rounded-lg shadow-lg max-h-40 overflow-y-auto"></div></div></div></div><div class="flex items-center justify-between p-6 border-t bg-gray-50 rounded-b-2xl"><button id="deletePostBtn" class="text-red-600 hover:text-red-800 font-semibold transition-colors">Post löschen</button><div class="flex items-center"><p id="modal-error" class="text-sm text-red-500 mr-4"></p><button id="cancelModalBtn" class="bg-white py-2 px-4 border border-gray-300 rounded-lg shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50">Abbrechen</button><button id="savePostBtn" class="ml-3 inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-lg text-white bg-blue-600 hover:bg-blue-700 disabled:opacity-50">Speichern</button></div></div></div></div>
+    <div id="postModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50 opacity-0 pointer-events-none modal-backdrop"><div class="bg-white rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] flex flex-col modal-content transform scale-95"><div class="flex items-center justify-between p-6 border-b"><h3 class="text-2xl font-bold">Post Details</h3><button id="closeModalBtn" class="p-2 rounded-full hover:bg-gray-200 transition-colors"><svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg></button></div><div class="flex-1 p-6 overflow-y-auto space-y-4"><input type="hidden" id="postId"><input type="hidden" id="postDate"><input type="hidden" id="postFolderId"><div><label for="postTitle" class="block text-sm font-medium text-gray-700 mb-1">Titel</label><input type="text" id="postTitle" class="w-full border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500" placeholder="Kurzer Titel für die Kalenderansicht"></div><div><label for="postStatus" class="block text-sm font-medium text-gray-700 mb-1">Status</label><select id="postStatus" class="w-full border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500"><option value="entwurf">Entwurf</option><option value="freigabe">Zur Freigabe</option><option value="geplant">Geplant</option><option value="veroeffentlicht">Veröffentlicht</option></select></div><div><label for="postType" class="block text-sm font-medium text-gray-700 mb-1">Post-Typ</label><select id="postType" class="w-full border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500"><option value="single">Einzelbeitrag</option><option value="carousel">Karussell</option><option value="reel">Reel</option></select></div><div id="post-type-fields" class="space-y-4 border-t pt-4 mt-4"></div><div><label class="block text-sm font-medium text-gray-700 mb-2">Aufgaben-Checkliste</label><div id="taskListContainer" class="space-y-2 mb-3"></div><div class="flex gap-2"><input type="text" id="newTaskInput" placeholder="Neue Aufgabe hinzufügen..." class="flex-grow w-full border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500"><button id="addTaskBtn" class="bg-blue-100 text-blue-800 font-semibold px-4 py-2 rounded-lg hover:bg-blue-200 transition-colors">Add</button></div></div><div><label for="postCaption" class="block text-sm font-medium text-gray-700 mb-1">Caption</label><textarea id="postCaption" rows="6" class="w-full border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500" placeholder="Schreibe hier deinen Post-Text..."></textarea></div><div><label for="postHashtags" class="block text-sm font-medium text-gray-700 mb-1">Hashtags</label><input type="text" id="postHashtags" class="w-full border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500" placeholder="#planning #socialmedia ..."></div></div><div class="p-6 border-t"><h4 class="text-lg font-semibold mb-2">Kommentare</h4><div id="comments-container" class="space-y-4 max-h-48 overflow-y-auto mb-4"></div><div class="relative flex items-start gap-3"><div class="flex-1"><textarea id="new-comment-input" placeholder="Schreibe einen Kommentar... @ um jemanden zu erwähnen" class="w-full border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500 pr-12"></textarea><button id="send-comment-btn" class="absolute right-2 bottom-2 bg-blue-600 text-white p-2 rounded-full hover:bg-blue-700 disabled:opacity-50"><svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path d="M10.894 2.553a1 1 0 00-1.788 0l-7 14a1 1 0 001.169 1.409l5-1.429A1 1 0 009 15.571V11a1 1 0 112 0v4.571a1 1 0 00.725.962l5 1.428a1 1 0 001.17-1.408l-7-14z" /></svg></button><div id="mention-suggestions" class="hidden absolute bottom-full left-0 w-full bg-white border rounded-lg shadow-lg max-h-40 overflow-y-auto"></div></div></div></div><div class="flex items-center justify-between p-6 border-t bg-gray-50 rounded-b-2xl"><button id="deletePostBtn" class="text-red-600 hover:text-red-800 font-semibold transition-colors">Post löschen</button><div class="flex items-center"><p id="modal-error" class="text-sm text-red-500 mr-4"></p><button id="cancelModalBtn" class="bg-white py-2 px-4 border border-gray-300 rounded-lg shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50">Abbrechen</button><button id="savePostBtn" class="ml-3 inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-lg text-white bg-blue-600 hover:bg-blue-700 disabled:opacity-50">Speichern</button></div></div></div></div>
     <div id="confirmationModal" class="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center p-4 z-[100] opacity-0 pointer-events-none transition-opacity duration-300 confirmation-backdrop"><div class="bg-white rounded-2xl shadow-2xl w-full max-w-sm p-6 text-center transform scale-95 transition-transform duration-300 confirmation-content"><h4 id="confirmationTitle" class="text-lg font-bold mb-2">Aktion bestätigen</h4><p id="confirmationMessage" class="text-gray-600 mb-6">Möchtest du wirklich fortfahren?</p><div class="flex justify-center gap-4"><button id="confirmCancelBtn" class="bg-white py-2 px-6 border border-gray-300 rounded-lg font-medium text-gray-700 hover:bg-gray-50">Abbrechen</button><button id="confirmActionBtn" class="py-2 px-6 border border-transparent rounded-lg font-medium text-white">Bestätigen</button></div></div></div>
     <div id="folderModal" class="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center p-4 z-[100] opacity-0 pointer-events-none transition-opacity duration-300 confirmation-backdrop"><div class="bg-white rounded-2xl shadow-2xl w-full max-w-sm p-6 transform scale-95 transition-transform duration-300 confirmation-content"><h4 id="folderModalTitle" class="text-lg font-bold mb-4">Ordner verwalten</h4><input type="hidden" id="folderId"><div><label for="folderName" class="sr-only">Ordnername</label><input id="folderName" type="text" required class="appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm" placeholder="Name des Ordners"></div><div class="flex justify-end gap-4 mt-6"><button id="folderCancelBtn" class="bg-white py-2 px-6 border border-gray-300 rounded-lg font-medium text-gray-700 hover:bg-gray-50">Abbrechen</button><button id="folderSaveBtn" class="py-2 px-6 border border-transparent rounded-lg font-medium text-white bg-blue-600 hover:bg-blue-700">Speichern</button></div></div></div>
     <div id="profileModal" class="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center p-4 z-[100] opacity-0 pointer-events-none transition-opacity duration-300 confirmation-backdrop">
@@ -154,7 +156,7 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
         import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged, updatePassword } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
-        import { getFirestore, collection, doc, addDoc, setDoc, deleteDoc, onSnapshot, query, getDoc, serverTimestamp, writeBatch, orderBy } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
+        import { getFirestore, collection, doc, addDoc, setDoc, deleteDoc, onSnapshot, query, getDoc, serverTimestamp, writeBatch, orderBy, getDocs, updateDoc } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
         import { getStorage, ref, uploadBytesResumable, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-storage.js";
 
         const firebaseConfig = {
@@ -185,7 +187,7 @@
         let unsubscribeComments = null;
         let initialPostState = null;
         let confirmAction = null;
-        let currentView = 'calendar';
+        let currentView = 'dashboard'; // Default to dashboard
         let authMode = 'login';
         let currentBoardFilter = 'all';
 
@@ -219,6 +221,7 @@
         const addTaskBtn = document.getElementById('addTaskBtn');
         const monthControl = document.getElementById('monthControl');
         const viewSwitcher = document.getElementById('viewSwitcher');
+        const dashboardView = document.getElementById('dashboardView');
         const calendarView = document.getElementById('calendarView');
         const boardView = document.getElementById('boardView');
         const boardFilterContainer = document.getElementById('board-filter-container');
@@ -243,6 +246,8 @@
         const newCommentInput = document.getElementById('new-comment-input');
         const sendCommentBtn = document.getElementById('send-comment-btn');
         const mentionSuggestions = document.getElementById('mention-suggestions');
+        const postTypeSelect = document.getElementById('postType');
+        const postTypeFieldsContainer = document.getElementById('post-type-fields');
         const boardColumns = [{ id: 'entwurf', title: 'Entwurf' }, { id: 'freigabe', title: 'Zur Freigabe' }, { id: 'geplant', title: 'Geplant' }, { id: 'veroeffentlicht', title: 'Veröffentlicht' }];
 
         // --- HELPER FUNCTIONS ---
@@ -388,13 +393,12 @@
             await deleteDoc(doc(db, 'users', user.uid, 'folders', folderId));
         };
         
-        const saveComment = async (postId, text) => {
+        const saveComment = async (postId, commentData) => {
             const user = auth.currentUser;
-            if (!user || !postId || !text) return;
+            if (!user || !postId) return;
             const commentsColRef = collection(db, 'users', user.uid, 'posts', postId, 'comments');
             await addDoc(commentsColRef, {
-                text: text,
-                authorId: user.uid,
+                ...commentData,
                 createdAt: serverTimestamp()
             });
         };
@@ -417,6 +421,7 @@
         const openModal = () => {
             modal.classList.remove('opacity-0', 'pointer-events-none');
             modal.querySelector('.modal-content').classList.remove('scale-95');
+            updatePostTypeFields(postTypeSelect.value); // Initial render of dynamic fields
             setTimeout(() => initialPostState = getFormState(), 200); 
         };
         const closeModal = () => {
@@ -433,6 +438,8 @@
             document.getElementById('postCaption').value = '';
             document.getElementById('postHashtags').value = '';
             document.getElementById('postStatus').value = 'entwurf';
+            postTypeSelect.value = 'single';
+            postTypeFieldsContainer.innerHTML = '';
             taskListContainer.innerHTML = '';
             commentsContainer.innerHTML = '';
             initialPostState = null;
@@ -450,6 +457,10 @@
             document.getElementById('postCaption').value = post.caption;
             document.getElementById('postHashtags').value = post.hashtags;
             document.getElementById('postStatus').value = post.status;
+            postTypeSelect.value = post.postType || 'single';
+            
+            updatePostTypeFields(post.postType || 'single', post.typeDetails);
+
             renderTasks(post.tasks || []);
 
             const user = auth.currentUser;
@@ -530,9 +541,23 @@
                 commentEl.className = 'flex items-start gap-3';
                 const authorName = author ? author.firstName : 'Unbekannt';
 
-                let commentText = comment.text.replace(/@\[(.+?)\]\((.+?)\)/g, '<strong class="text-blue-600">@$1</strong>');
+                let commentText = comment.text;
+                let readIndicator = '';
+
+                // If the current user is the author, check the read status of mentions
+                if (currentUserProfile && comment.authorId === currentUserProfile.id && comment.mentions) {
+                    comment.mentions.forEach(mention => {
+                        const mentionedUser = allUsers.find(u => u.id === mention.uid);
+                        if (mentionedUser) {
+                            const mentionTag = `@${mentionedUser.firstName}`;
+                            if (mention.read) {
+                                // Add a green checkmark if read
+                                commentText = commentText.replace(mentionTag, `${mentionTag} <span class="text-green-500" title="Gelesen von ${mentionedUser.firstName}">&#10003;</span>`);
+                            }
+                        }
+                    });
+                }
                 
-                // Handle both Firestore Timestamp and JS Date objects
                 const date = comment.createdAt?.toDate ? comment.createdAt.toDate() : comment.createdAt;
                 const dateString = date ? date.toLocaleString('de-DE') : '';
 
@@ -549,10 +574,12 @@
 
         // --- RENDER LOGIC ---
         const render = () => {
-            if (currentView === 'calendar') {
-                renderCalendar(localPosts);
+            if (currentView === 'dashboard') {
+                renderDashboard();
+            } else if (currentView === 'calendar') {
+                renderCalendar();
             } else {
-                renderBoard(localPosts);
+                renderBoard();
             }
             renderIdeaBank();
             updateViewSwitcher();
@@ -631,8 +658,8 @@
             });
         };
 
-        const renderCalendar = (posts) => {
-            const scheduledPosts = posts.filter(p => p.date);
+        const renderCalendar = () => {
+            const scheduledPosts = localPosts.filter(p => p.date);
             calendarGrid.innerHTML = '';
             const year = currentDate.getFullYear();
             const month = currentDate.getMonth();
@@ -684,11 +711,10 @@
             }
         };
 
-        const renderBoard = (posts) => {
-            const scheduledPosts = posts.filter(p => p.date);
-            let filteredPosts = scheduledPosts;
+        const renderBoard = () => {
+            let filteredPosts = localPosts; // Use all posts, not just scheduled
             if (currentBoardFilter !== 'all') {
-                filteredPosts = scheduledPosts.filter(post => 
+                filteredPosts = localPosts.filter(post => 
                     post.tasks && post.tasks.some(task => task.assignedTo === currentBoardFilter)
                 );
             }
@@ -707,7 +733,8 @@
                     card.dataset.postId = post.id;
                     const tasksTotal = post.tasks?.length || 0;
                     const tasksCompleted = post.tasks?.filter(t => t.completed).length || 0;
-                    card.innerHTML = `<p class="font-semibold mb-2">${post.title || 'Ohne Titel'}</p><div class="flex items-center justify-between text-xs text-gray-500"><span>${new Date(post.date).toLocaleDateString('de-DE', {day: '2-digit', month: '2-digit'})}</span>${tasksTotal > 0 ? `<span>${tasksCompleted}/${tasksTotal} Tasks</span>` : '<span></span>'}</div>`;
+                    const dateDisplay = post.date ? new Date(post.date).toLocaleDateString('de-DE', {day: '2-digit', month: '2-digit'}) : 'Kein Datum';
+                    card.innerHTML = `<p class="font-semibold mb-2">${post.title || 'Ohne Titel'}</p><div class="flex items-center justify-between text-xs text-gray-500"><span>${dateDisplay}</span>${tasksTotal > 0 ? `<span>${tasksCompleted}/${tasksTotal} Tasks</span>` : '<span></span>'}</div>`;
                     card.addEventListener('click', () => { fillModalForm(post); openModal(); });
                     card.addEventListener('dragstart', (e) => { e.dataTransfer.setData('text/plain', post.id); setTimeout(() => card.classList.add('dragging'), 0); });
                     card.addEventListener('dragend', () => card.classList.remove('dragging'));
@@ -726,15 +753,116 @@
             updateBoardFilterUI();
         };
 
+        const renderDashboard = async () => {
+            if (!currentUserProfile) return;
+            dashboardView.innerHTML = `
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    <div class="bg-white p-6 rounded-2xl shadow-lg">
+                        <h2 class="text-2xl font-bold mb-4">Meine Aufgaben</h2>
+                        <div id="dashboard-tasks" class="space-y-3"></div>
+                    </div>
+                    <div class="bg-white p-6 rounded-2xl shadow-lg">
+                        <h2 class="text-2xl font-bold mb-4">Meine Erwähnungen</h2>
+                        <div id="dashboard-mentions" class="space-y-3"></div>
+                    </div>
+                </div>
+            `;
+
+            const tasksContainer = document.getElementById('dashboard-tasks');
+            const mentionsContainer = document.getElementById('dashboard-mentions');
+            const currentUserId = currentUserProfile.id;
+
+            // --- Render Tasks ---
+            tasksContainer.innerHTML = '';
+            let hasTasks = false;
+            localPosts.forEach(post => {
+                if (post.tasks) {
+                    post.tasks.forEach(task => {
+                        if (task.assignedTo === currentUserId && !task.completed) {
+                            hasTasks = true;
+                            const taskEl = document.createElement('div');
+                            taskEl.className = 'p-3 bg-gray-50 rounded-lg cursor-pointer hover:bg-gray-100';
+                            taskEl.dataset.postId = post.id;
+                            taskEl.innerHTML = `
+                                <p class="font-semibold">${task.text}</p>
+                                <p class="text-sm text-gray-500">In Post: ${post.title || 'Ohne Titel'}</p>
+                            `;
+                            taskEl.addEventListener('click', () => {
+                                const fullPost = localPosts.find(p => p.id === post.id);
+                                if (fullPost) {
+                                    fillModalForm(fullPost);
+                                    openModal();
+                                }
+                            });
+                            tasksContainer.appendChild(taskEl);
+                        }
+                    });
+                }
+            });
+            if (!hasTasks) {
+                tasksContainer.innerHTML = '<p class="text-gray-500">Keine offenen Aufgaben zugewiesen.</p>';
+            }
+
+            // --- Render Mentions ---
+            mentionsContainer.innerHTML = '<p class="text-gray-500">Suche nach Erwähnungen...</p>';
+            const mentionPromises = localPosts.map(async (post) => {
+                const commentsColRef = collection(db, 'users', auth.currentUser.uid, 'posts', post.id, 'comments');
+                const snapshot = await getDocs(commentsColRef);
+                return { post, comments: snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })) };
+            });
+
+            const allCommentsByPost = await Promise.all(mentionPromises);
+            const allMentions = [];
+            allCommentsByPost.forEach(({ post, comments }) => {
+                comments.forEach(comment => {
+                    if (comment.mentions) {
+                        const userMention = comment.mentions.find(m => m.uid === currentUserId && !m.read);
+                        if (userMention) {
+                            allMentions.push({ post, comment });
+                        }
+                    }
+                });
+            });
+            
+            mentionsContainer.innerHTML = '';
+            if (allMentions.length > 0) {
+                allMentions.forEach(({ post, comment }) => {
+                    const mentionEl = document.createElement('div');
+                    mentionEl.className = 'p-3 bg-gray-50 rounded-lg';
+                    const author = allUsers.find(u => u.id === comment.authorId);
+                    const authorName = author ? author.firstName : 'Jemand';
+                    mentionEl.innerHTML = `
+                        <div class="cursor-pointer" data-post-id="${post.id}">
+                            <p class="text-sm text-gray-700 break-words"><strong>${authorName}</strong> erwähnte Sie in <em>"${post.title || 'Ohne Titel'}"</em></p>
+                            <p class="text-sm text-gray-500 mt-1 p-2 bg-white rounded"><em>"${comment.text.replace(/@\[([^\]]+)\]\(([^)]+)\)/g, '<strong class="text-blue-600">@$1</strong>')}"</em></p>
+                        </div>
+                        <button class="mark-mention-as-read-btn text-xs font-semibold text-blue-600 hover:text-blue-800 mt-2" data-post-id="${post.id}" data-comment-id="${comment.id}">Als gelesen markieren</button>
+                    `;
+                    mentionEl.querySelector('.cursor-pointer').addEventListener('click', () => {
+                        const fullPost = localPosts.find(p => p.id === post.id);
+                        if (fullPost) {
+                            fillModalForm(fullPost);
+                            openModal();
+                        }
+                    });
+                    mentionsContainer.appendChild(mentionEl);
+                });
+            } else {
+                mentionsContainer.innerHTML = '<p class="text-gray-500">Keine neuen Erwähnungen.</p>';
+            }
+        };
+
+
         const updateViewSwitcher = () => {
             document.querySelectorAll('.view-btn').forEach(btn => {
                 btn.classList.toggle('bg-white', btn.dataset.view === currentView);
                 btn.classList.toggle('text-blue-600', btn.dataset.view === currentView);
                 btn.classList.toggle('text-gray-600', btn.dataset.view !== currentView);
             });
+            dashboardView.classList.toggle('hidden', currentView !== 'dashboard');
             calendarView.classList.toggle('hidden', currentView !== 'calendar');
             boardView.classList.toggle('hidden', currentView !== 'board');
-            monthControl.style.visibility = currentView === 'board' ? 'hidden' : 'visible';
+            monthControl.style.visibility = currentView === 'calendar' ? 'visible' : 'hidden';
         };
         
         const updateBoardFilterUI = () => {
@@ -761,9 +889,64 @@
              });
         };
 
+        // --- DYNAMIC POST TYPE FIELDS ---
+        const updatePostTypeFields = (type, details = {}) => {
+            postTypeFieldsContainer.innerHTML = ''; // Clear previous fields
+            switch (type) {
+                case 'reel':
+                    postTypeFieldsContainer.innerHTML = `
+                        <div><label for="reel-script" class="block text-sm font-medium text-gray-700 mb-1">Drehbuch</label><textarea id="reel-script" rows="3" class="w-full border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500" placeholder="Konzept und Ablauf des Reels...">${details.script || ''}</textarea></div>
+                        <div><label for="reel-screenplay" class="block text-sm font-medium text-gray-700 mb-1">Skript</label><textarea id="reel-screenplay" rows="3" class="w-full border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500" placeholder="Was wird gesagt?">${details.screenplay || ''}</textarea></div>
+                        <div><label for="reel-canva-link" class="block text-sm font-medium text-gray-700 mb-1">Titelbild (Canva Link)</label><input type="text" id="reel-canva-link" class="w-full border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500" placeholder="https://canva.com/..." value="${details.canvaLink || ''}"></div>
+                    `;
+                    break;
+                case 'carousel':
+                    postTypeFieldsContainer.innerHTML = `
+                        <div><label for="carousel-title" class="block text-sm font-medium text-gray-700 mb-1">Titeltext</label><input type="text" id="carousel-title" class="w-full border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500" placeholder="Titel für das Karussell" value="${details.title || ''}"></div>
+                        <div id="carousel-slides-container" class="space-y-3"></div>
+                        <button type="button" id="add-carousel-slide-btn" class="text-sm font-medium text-blue-600 hover:text-blue-500">+ Slide hinzufügen</button>
+                        <div><label for="carousel-canva-link" class="block text-sm font-medium text-gray-700 mb-1">Canva Link</label><input type="text" id="carousel-canva-link" class="w-full border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500" placeholder="https://canva.com/..." value="${details.canvaLink || ''}"></div>
+                    `;
+                    const slidesContainer = document.getElementById('carousel-slides-container');
+                    const addSlideBtn = document.getElementById('add-carousel-slide-btn');
+
+                    const addSlide = (text = '') => {
+                        const slideCount = slidesContainer.children.length + 1;
+                        const slideWrapper = document.createElement('div');
+                        slideWrapper.className = 'relative';
+                        slideWrapper.innerHTML = `
+                            <label for="carousel-slide-${slideCount}" class="block text-sm font-medium text-gray-700 mb-1">Slide ${slideCount}</label>
+                            <textarea id="carousel-slide-${slideCount}" rows="3" class="carousel-slide-text w-full border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500" placeholder="Text für Slide ${slideCount}...">${text}</textarea>
+                            <button type="button" class="remove-slide-btn absolute top-0 right-0 mt-1 mr-1 text-gray-400 hover:text-red-500 p-1">&times;</button>
+                        `;
+                        slidesContainer.appendChild(slideWrapper);
+                    };
+
+                    (details.slides || [{ text: '' }]).forEach(slide => addSlide(slide.text));
+                    addSlideBtn.addEventListener('click', () => addSlide());
+                    slidesContainer.addEventListener('click', e => {
+                        if (e.target.classList.contains('remove-slide-btn')) {
+                            e.target.parentElement.remove();
+                            slidesContainer.querySelectorAll('label').forEach((label, index) => {
+                                label.textContent = `Slide ${index + 1}`;
+                            });
+                        }
+                    });
+                    break;
+                case 'single':
+                    postTypeFieldsContainer.innerHTML = `
+                        <div><label for="single-title" class="block text-sm font-medium text-gray-700 mb-1">Titeltext</label><input type="text" id="single-title" class="w-full border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500" placeholder="Titel für das Bild" value="${details.title || ''}"></div>
+                        <div><label for="single-canva-link" class="block text-sm font-medium text-gray-700 mb-1">Canva Link</label><input type="text" id="single-canva-link" class="w-full border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500" placeholder="https://canva.com/..." value="${details.canvaLink || ''}"></div>
+                    `;
+                    break;
+            }
+        };
+
+
         // --- EVENT LISTENERS ---
         prevMonthBtn.addEventListener('click', () => { currentDate.setMonth(currentDate.getMonth() - 1); render(); });
         nextMonthBtn.addEventListener('click', () => { currentDate.setMonth(currentDate.getMonth() + 1); render(); });
+        postTypeSelect.addEventListener('change', () => updatePostTypeFields(postTypeSelect.value));
         
         const handleCloseAttempt = () => {
             if (savePostBtn.disabled) return;
@@ -786,30 +969,39 @@
                 const postData = { 
                     date: document.getElementById('postDate').value || null,
                     folderId: document.getElementById('postFolderId').value || 'unassigned',
-                    ...getFormState()
+                    ...getFormState(),
+                    postType: postTypeSelect.value,
+                    typeDetails: {}
                 };
+
+                switch (postData.postType) {
+                    case 'reel':
+                        postData.typeDetails = { script: document.getElementById('reel-script').value, screenplay: document.getElementById('reel-screenplay').value, canvaLink: document.getElementById('reel-canva-link').value };
+                        break;
+                    case 'carousel':
+                        const slides = Array.from(document.querySelectorAll('.carousel-slide-text')).map(textarea => ({ text: textarea.value }));
+                        postData.typeDetails = { title: document.getElementById('carousel-title').value, slides: slides, canvaLink: document.getElementById('carousel-canva-link').value };
+                        break;
+                    case 'single':
+                         postData.typeDetails = { title: document.getElementById('single-title').value, canvaLink: document.getElementById('single-canva-link').value };
+                        break;
+                }
+
                 const user = auth.currentUser;
                 if (!user) throw new Error("Benutzer nicht authentifiziert");
 
                 if (id) {
-                    // --- BESTEHENDEN POST AKTUALISIEREN ---
                     await setDoc(doc(db, 'users', user.uid, 'posts', id), postData, { merge: true });
                 } else {
-                    // --- NEUEN POST ERSTELLEN ---
-                    // 1. Haupt-Post-Dokument speichern
                     const docRef = await addDoc(collection(db, 'users', user.uid, 'posts'), postData);
                     const newPostId = docRef.id;
 
-                    // 2. Wenn lokale Kommentare vorhanden sind, diese in einem Batch speichern
                     if (localNewComments.length > 0) {
                         const batch = writeBatch(db);
                         localNewComments.forEach(comment => {
                             const commentRef = doc(collection(db, 'users', user.uid, 'posts', newPostId, 'comments'));
-                            const { createdAt, ...commentData } = comment; // Temporäres Datum entfernen
-                            batch.set(commentRef, {
-                                ...commentData,
-                                createdAt: serverTimestamp() // Server-Zeitstempel verwenden
-                            });
+                            const { createdAt, ...commentData } = comment;
+                            batch.set(commentRef, { ...commentData, createdAt: serverTimestamp() });
                         });
                         await batch.commit();
                     }
@@ -868,9 +1060,34 @@
             const button = e.target.closest('.board-filter-btn');
             if (button) {
                 currentBoardFilter = button.dataset.filter;
-                renderBoard(localPosts);
+                render();
             }
         });
+
+        dashboardView.addEventListener('click', async (e) => {
+            if (e.target.classList.contains('mark-mention-as-read-btn')) {
+                const button = e.target;
+                button.disabled = true;
+                const postId = button.dataset.postId;
+                const commentId = button.dataset.commentId;
+                const user = auth.currentUser;
+
+                if (!postId || !commentId || !user) return;
+
+                const commentRef = doc(db, 'users', user.uid, 'posts', postId, 'comments', commentId);
+                const commentSnap = await getDoc(commentRef);
+
+                if (commentSnap.exists()) {
+                    const commentData = commentSnap.data();
+                    const updatedMentions = commentData.mentions.map(mention => 
+                        mention.uid === user.uid ? { ...mention, read: true } : mention
+                    );
+                    await updateDoc(commentRef, { mentions: updatedMentions });
+                    renderDashboard(); // Re-render the dashboard to remove the item
+                }
+            }
+        });
+
 
         addFolderBtn.addEventListener('click', () => openFolderModal());
 
@@ -970,25 +1187,33 @@
 
         sendCommentBtn.addEventListener('click', async () => {
             const postId = document.getElementById('postId').value;
-            const text = newCommentInput.value.trim();
+            let text = newCommentInput.value.trim();
             if (!text) return;
 
             sendCommentBtn.disabled = true;
-            
-            if (postId) {
-                // Bestehender Post: Direkt in Firestore speichern
-                await saveComment(postId, text);
-            } else {
-                // Neuer Post: Lokal zum Array hinzufügen
-                const user = auth.currentUser;
-                if (user) {
-                    localNewComments.push({
-                        text: text,
-                        authorId: user.uid,
-                        createdAt: new Date() // Temporäres Datum für die Anzeige
-                    });
-                    renderComments(localNewComments);
+
+            const mentionRegex = /@(\w+)/g;
+            const mentions = [];
+            let match;
+            while ((match = mentionRegex.exec(text)) !== null) {
+                const mentionedUser = allUsers.find(u => u.firstName === match[1]);
+                if (mentionedUser) {
+                    mentions.push({ uid: mentionedUser.id, read: false });
                 }
+            }
+            
+            const commentData = {
+                text: text,
+                authorId: auth.currentUser.uid,
+                mentions: mentions
+            };
+
+            if (postId) {
+                await saveComment(postId, commentData);
+            } else {
+                commentData.createdAt = new Date();
+                localNewComments.push(commentData);
+                renderComments(localNewComments);
             }
             
             newCommentInput.value = '';
