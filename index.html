@@ -547,7 +547,7 @@
 
                 let commentText = comment.text;
                 
-                if (currentUserProfile && comment.authorId === currentUserProfile.id && comment.mentions) {
+                if (comment.mentions) {
                     comment.mentions.forEach(mention => {
                         const mentionedUser = allUsers.find(u => u.id === mention.uid);
                         if (mentionedUser) {
@@ -1262,10 +1262,6 @@
 
         // --- INITIALIZATION ---
         updateAuthUI();
-        const postTypeSelect = document.getElementById('postType');
-        if (postTypeSelect) {
-            postTypeSelect.addEventListener('change', (e) => updatePostTypeFields(e.target.value));
-        }
 
     </script>
 </body>
