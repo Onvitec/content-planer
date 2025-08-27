@@ -20,6 +20,11 @@
         .kanban-column { min-height: 400px; }
         .kanban-card.dragging, .idea-card.dragging { opacity: 0.5; transform: rotate(3deg); }
         .kanban-column.drag-over, .calendar-day.drag-over, .idea-folder-content.drag-over { background-color: #f3f4f6; }
+
+        /* Post Type Colors */
+        .post-type-single { background-color: #dbeafe; border-left: 4px solid #60a5fa; } /* blue */
+        .post-type-carousel { background-color: #dcfce7; border-left: 4px solid #4ade80; } /* green */
+        .post-type-reel { background-color: #fef9c3; border-left: 4px solid #facc15; } /* yellow */
     </style>
 </head>
 <body class="bg-gray-100 font-sans text-gray-800 antialiased">
@@ -107,7 +112,7 @@
 
                 <main id="mainViewContainer">
                      <div id="dashboardView" class="hidden"></div>
-                     <div id="calendarView" class="bg-white p-2 sm:p-4 rounded-2xl shadow-lg"><div class="calendar-grid mb-2"><div class="text-center font-semibold text-gray-600 py-2">So</div><div class="text-center font-semibold text-gray-600 py-2">Mo</div><div class="text-center font-semibold text-gray-600 py-2">Di</div><div class="text-center font-semibold text-gray-600 py-2">Mi</div><div class="text-center font-semibold text-gray-600 py-2">Do</div><div class="text-center font-semibold text-gray-600 py-2">Fr</div><div class="text-center font-semibold text-gray-600 py-2">Sa</div></div><div id="calendarGrid" class="calendar-grid"></div></div>
+                     <div id="calendarView" class="bg-white p-2 sm:p-4 rounded-2xl shadow-lg"><div class="calendar-grid mb-2"><div class="text-center font-semibold text-gray-600 py-2">Mo</div><div class="text-center font-semibold text-gray-600 py-2">Di</div><div class="text-center font-semibold text-gray-600 py-2">Mi</div><div class="text-center font-semibold text-gray-600 py-2">Do</div><div class="text-center font-semibold text-gray-600 py-2">Fr</div><div class="text-center font-semibold text-gray-600 py-2">Sa</div><div class="text-center font-semibold text-gray-600 py-2">So</div></div><div id="calendarGrid" class="calendar-grid"></div></div>
                      <div id="boardView" class="hidden">
                          <div id="board-filter-container" class="flex items-center gap-2 mb-4 bg-white p-3 rounded-2xl shadow-md">
                              <span class="font-semibold text-gray-700">Aufgaben von:</span>
@@ -542,16 +547,13 @@
                 const authorName = author ? author.firstName : 'Unbekannt';
 
                 let commentText = comment.text;
-                let readIndicator = '';
-
-                // If the current user is the author, check the read status of mentions
+                
                 if (currentUserProfile && comment.authorId === currentUserProfile.id && comment.mentions) {
                     comment.mentions.forEach(mention => {
                         const mentionedUser = allUsers.find(u => u.id === mention.uid);
                         if (mentionedUser) {
                             const mentionTag = `@${mentionedUser.firstName}`;
                             if (mention.read) {
-                                // Add a green checkmark if read
                                 commentText = commentText.replace(mentionTag, `${mentionTag} <span class="text-green-500" title="Gelesen von ${mentionedUser.firstName}">&#10003;</span>`);
                             }
                         }
@@ -587,14 +589,17 @@
         
         const renderIdeaBank = () => {
             ideaBankContainer.innerHTML = '';
+            const folderColors = ['bg-red-100', 'bg-blue-100', 'bg-green-100', 'bg-yellow-100', 'bg-purple-100', 'bg-pink-100'];
             const folders = [...localFolders, {id: 'unassigned', name: 'Unsortiert'}];
 
-            folders.forEach(folder => {
+            folders.forEach((folder, index) => {
                 const folderEl = document.createElement('details');
-                folderEl.className = 'bg-gray-100 rounded-lg open:shadow-lg';
+                folderEl.className = 'bg-gray-50 rounded-lg open:shadow-lg';
                 folderEl.open = true;
 
                 const ideasInFolder = localPosts.filter(p => !p.date && (p.folderId === folder.id || (folder.id === 'unassigned' && !p.folderId)));
+                
+                const colorClass = folder.id !== 'unassigned' ? folderColors[index % folderColors.length] : 'bg-gray-100';
 
                 const folderControls = folder.id !== 'unassigned' ? `
                     <div class="flex items-center">
@@ -615,7 +620,7 @@
                 `;
 
                 folderEl.innerHTML = `
-                    <summary class="p-3 cursor-pointer flex justify-between items-center font-semibold">
+                    <summary class="p-3 cursor-pointer flex justify-between items-center font-semibold ${colorClass} rounded-t-lg">
                         <span class="flex-1 truncate">${folder.name} (${ideasInFolder.length})</span>
                         ${folderControls}
                     </summary>
@@ -638,7 +643,8 @@
 
                 ideasInFolder.forEach(idea => {
                     const ideaCard = document.createElement('div');
-                    ideaCard.className = 'idea-card bg-white p-2 rounded-md shadow-sm cursor-grab';
+                    const postTypeClass = `post-type-${idea.postType || 'single'}`;
+                    ideaCard.className = `idea-card p-2 rounded-md shadow-sm cursor-grab ${postTypeClass}`;
                     ideaCard.dataset.postId = idea.id;
                     ideaCard.draggable = true;
                     ideaCard.innerHTML = `<p class="text-sm font-medium">${idea.title || 'Ohne Titel'}</p>`;
@@ -690,7 +696,8 @@
                 postsContainer.className = 'mt-1 space-y-1 overflow-y-auto';
                 dayPosts.forEach(post => {
                     const postCard = document.createElement('div');
-                    postCard.className = `p-1.5 rounded-md text-xs font-semibold cursor-pointer bg-gray-100`;
+                    const postTypeClass = `post-type-${post.postType || 'single'}`;
+                    postCard.className = `p-1.5 rounded-md text-xs font-semibold cursor-pointer ${postTypeClass}`;
                     postCard.dataset.postId = post.id;
                     postCard.draggable = true;
                     postCard.addEventListener('dragstart', (e) => {
@@ -728,7 +735,8 @@
                 const cardsContainer = columnEl.querySelector('.kanban-column');
                 postsInColumn.forEach(post => {
                     const card = document.createElement('div');
-                    card.className = 'kanban-card bg-gray-50 p-3 rounded-lg shadow-sm cursor-pointer';
+                    const postTypeClass = `post-type-${post.postType || 'single'}`;
+                    card.className = `kanban-card p-3 rounded-lg shadow-sm cursor-pointer ${postTypeClass}`;
                     card.draggable = true;
                     card.dataset.postId = post.id;
                     const tasksTotal = post.tasks?.length || 0;
@@ -834,7 +842,7 @@
                     mentionEl.innerHTML = `
                         <div class="cursor-pointer" data-post-id="${post.id}">
                             <p class="text-sm text-gray-700 break-words"><strong>${authorName}</strong> erwähnte Sie in <em>"${post.title || 'Ohne Titel'}"</em></p>
-                            <p class="text-sm text-gray-500 mt-1 p-2 bg-white rounded"><em>"${comment.text.replace(/@\[([^\]]+)\]\(([^)]+)\)/g, '<strong class="text-blue-600">@$1</strong>')}"</em></p>
+                            <p class="text-sm text-gray-500 mt-1 p-2 bg-white rounded"><em>"${comment.text.replace(/@(\w+)/g, '<strong class="text-blue-600">@$1</strong>')}"</em></p>
                         </div>
                         <button class="mark-mention-as-read-btn text-xs font-semibold text-blue-600 hover:text-blue-800 mt-2" data-post-id="${post.id}" data-comment-id="${comment.id}">Als gelesen markieren</button>
                     `;
@@ -1240,7 +1248,7 @@
                             mentionSuggestions.classList.add('hidden');
                             newCommentInput.focus();
                         };
-                        mentionSuggestions.appendChild(suggestionEl);
+                        suggestionSuggestions.appendChild(suggestionEl);
                     });
                     mentionSuggestions.classList.remove('hidden');
                 } else {
