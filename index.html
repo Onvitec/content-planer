@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Onvitec Content Planer</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
         .calendar-grid { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 4px; }
@@ -20,11 +21,6 @@
         .kanban-column { min-height: 400px; }
         .kanban-card.dragging, .idea-card.dragging { opacity: 0.5; transform: rotate(3deg); }
         .kanban-column.drag-over, .calendar-day.drag-over, .idea-folder-content.drag-over { background-color: #f3f4f6; }
-
-        /* Post Type Colors */
-        .post-type-single { background-color: #dbeafe; border-left: 4px solid #60a5fa; } /* blue */
-        .post-type-carousel { background-color: #dcfce7; border-left: 4px solid #4ade80; } /* green */
-        .post-type-reel { background-color: #fef9c3; border-left: 4px solid #facc15; } /* yellow */
     </style>
 </head>
 <body class="bg-gray-100 font-sans text-gray-800 antialiased">
@@ -125,7 +121,7 @@
     </div>
 
     <!-- Modals -->
-    <div id="postModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50 opacity-0 pointer-events-none modal-backdrop"><div class="bg-white rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] flex flex-col modal-content transform scale-95"><div class="flex items-center justify-between p-6 border-b"><h3 class="text-2xl font-bold">Post Details</h3><button id="closeModalBtn" class="p-2 rounded-full hover:bg-gray-200 transition-colors"><svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg></button></div><div class="flex-1 p-6 overflow-y-auto space-y-4"><input type="hidden" id="postId"><input type="hidden" id="postDate"><input type="hidden" id="postFolderId"><div><label for="postTitle" class="block text-sm font-medium text-gray-700 mb-1">Titel</label><input type="text" id="postTitle" class="w-full border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500" placeholder="Kurzer Titel für die Kalenderansicht"></div><div><label for="postStatus" class="block text-sm font-medium text-gray-700 mb-1">Status</label><select id="postStatus" class="w-full border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500"><option value="entwurf">Entwurf</option><option value="freigabe">Zur Freigabe</option><option value="geplant">Geplant</option><option value="veroeffentlicht">Veröffentlicht</option></select></div><div><label for="postType" class="block text-sm font-medium text-gray-700 mb-1">Post-Typ</label><select id="postType" class="w-full border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500"><option value="single">Einzelbeitrag</option><option value="carousel">Karussell</option><option value="reel">Reel</option></select></div><div id="post-type-fields" class="space-y-4 border-t pt-4 mt-4"></div><div><label class="block text-sm font-medium text-gray-700 mb-2">Aufgaben-Checkliste</label><div id="taskListContainer" class="space-y-2 mb-3"></div><div class="flex gap-2"><input type="text" id="newTaskInput" placeholder="Neue Aufgabe hinzufügen..." class="flex-grow w-full border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500"><button id="addTaskBtn" class="bg-blue-100 text-blue-800 font-semibold px-4 py-2 rounded-lg hover:bg-blue-200 transition-colors">Add</button></div></div><div><label for="postCaption" class="block text-sm font-medium text-gray-700 mb-1">Caption</label><textarea id="postCaption" rows="6" class="w-full border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500" placeholder="Schreibe hier deinen Post-Text..."></textarea></div><div><label for="postHashtags" class="block text-sm font-medium text-gray-700 mb-1">Hashtags</label><input type="text" id="postHashtags" class="w-full border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500" placeholder="#planning #socialmedia ..."></div></div><div class="p-6 border-t"><h4 class="text-lg font-semibold mb-2">Kommentare</h4><div id="comments-container" class="space-y-4 max-h-48 overflow-y-auto mb-4"></div><div class="relative flex items-start gap-3"><div class="flex-1"><textarea id="new-comment-input" placeholder="Schreibe einen Kommentar... @ um jemanden zu erwähnen" class="w-full border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500 pr-12"></textarea><button id="send-comment-btn" class="absolute right-2 bottom-2 bg-blue-600 text-white p-2 rounded-full hover:bg-blue-700 disabled:opacity-50"><svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path d="M10.894 2.553a1 1 0 00-1.788 0l-7 14a1 1 0 001.169 1.409l5-1.429A1 1 0 009 15.571V11a1 1 0 112 0v4.571a1 1 0 00.725.962l5 1.428a1 1 0 001.17-1.408l-7-14z" /></svg></button><div id="mention-suggestions" class="hidden absolute bottom-full left-0 w-full bg-white border rounded-lg shadow-lg max-h-40 overflow-y-auto"></div></div></div></div><div class="flex items-center justify-between p-6 border-t bg-gray-50 rounded-b-2xl"><button id="deletePostBtn" class="text-red-600 hover:text-red-800 font-semibold transition-colors">Post löschen</button><div class="flex items-center"><p id="modal-error" class="text-sm text-red-500 mr-4"></p><button id="cancelModalBtn" class="bg-white py-2 px-4 border border-gray-300 rounded-lg shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50">Abbrechen</button><button id="savePostBtn" class="ml-3 inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-lg text-white bg-blue-600 hover:bg-blue-700 disabled:opacity-50">Speichern</button></div></div></div></div>
+    <div id="postModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50 opacity-0 pointer-events-none modal-backdrop"><div class="bg-white rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] flex flex-col modal-content transform scale-95"><div class="flex items-center justify-between p-6 border-b"><h3 class="text-2xl font-bold">Post Details</h3><button id="closeModalBtn" class="p-2 rounded-full hover:bg-gray-200 transition-colors"><svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg></button></div><div class="flex-1 p-6 overflow-y-auto space-y-4"><input type="hidden" id="postId"><input type="hidden" id="postDate"><input type="hidden" id="postFolderId"><div><label for="postTitle" class="block text-sm font-medium text-gray-700 mb-1">Titel</label><input type="text" id="postTitle" class="w-full border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500" placeholder="Kurzer Titel für die Kalenderansicht"></div><div><label for="postStatus" class="block text-sm font-medium text-gray-700 mb-1">Status</label><select id="postStatus" class="w-full border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500"><option value="entwurf">Entwurf</option><option value="freigabe">Zur Freigabe</option><option value="geplant">Geplant</option><option value="veroeffentlicht">Veröffentlicht</option></select></div><div><label class="block text-sm font-medium text-gray-700 mb-2">Aufgaben-Checkliste</label><div id="taskListContainer" class="space-y-2 mb-3"></div><div class="flex gap-2"><input type="text" id="newTaskInput" placeholder="Neue Aufgabe hinzufügen..." class="flex-grow w-full border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500"><button id="addTaskBtn" class="bg-blue-100 text-blue-800 font-semibold px-4 py-2 rounded-lg hover:bg-blue-200 transition-colors">Add</button></div></div><div><label for="postCaption" class="block text-sm font-medium text-gray-700 mb-1">Caption</label><textarea id="postCaption" rows="6" class="w-full border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500" placeholder="Schreibe hier deinen Post-Text..."></textarea></div><div><label for="postHashtags" class="block text-sm font-medium text-gray-700 mb-1">Hashtags</label><input type="text" id="postHashtags" class="w-full border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500" placeholder="#planning #socialmedia ..."></div></div><div class="p-6 border-t"><h4 class="text-lg font-semibold mb-2">Kommentare</h4><div id="comments-container" class="space-y-4 max-h-48 overflow-y-auto mb-4"></div><div class="relative flex items-start gap-3"><div class="flex-1"><textarea id="new-comment-input" placeholder="Schreibe einen Kommentar... @ um jemanden zu erwähnen" class="w-full border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500 pr-12"></textarea><button id="send-comment-btn" class="absolute right-2 bottom-2 bg-blue-600 text-white p-2 rounded-full hover:bg-blue-700 disabled:opacity-50"><svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path d="M10.894 2.553a1 1 0 00-1.788 0l-7 14a1 1 0 001.169 1.409l5-1.429A1 1 0 009 15.571V11a1 1 0 112 0v4.571a1 1 0 00.725.962l5 1.428a1 1 0 001.17-1.408l-7-14z" /></svg></button><div id="mention-suggestions" class="hidden absolute bottom-full left-0 w-full bg-white border rounded-lg shadow-lg max-h-40 overflow-y-auto"></div></div></div></div><div class="flex items-center justify-between p-6 border-t bg-gray-50 rounded-b-2xl"><div class="flex gap-2"><button id="exportPdfBtn" class="text-blue-600 hover:text-blue-800 font-semibold transition-colors">Export als PDF</button><button id="deletePostBtn" class="text-red-600 hover:text-red-800 font-semibold transition-colors">Post löschen</button></div><div class="flex items-center"><p id="modal-error" class="text-sm text-red-500 mr-4"></p><button id="cancelModalBtn" class="bg-white py-2 px-4 border border-gray-300 rounded-lg shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50">Abbrechen</button><button id="savePostBtn" class="ml-3 inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-lg text-white bg-blue-600 hover:bg-blue-700 disabled:opacity-50">Speichern</button></div></div></div></div>
     <div id="confirmationModal" class="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center p-4 z-[100] opacity-0 pointer-events-none transition-opacity duration-300 confirmation-backdrop"><div class="bg-white rounded-2xl shadow-2xl w-full max-w-sm p-6 text-center transform scale-95 transition-transform duration-300 confirmation-content"><h4 id="confirmationTitle" class="text-lg font-bold mb-2">Aktion bestätigen</h4><p id="confirmationMessage" class="text-gray-600 mb-6">Möchtest du wirklich fortfahren?</p><div class="flex justify-center gap-4"><button id="confirmCancelBtn" class="bg-white py-2 px-6 border border-gray-300 rounded-lg font-medium text-gray-700 hover:bg-gray-50">Abbrechen</button><button id="confirmActionBtn" class="py-2 px-6 border border-transparent rounded-lg font-medium text-white">Bestätigen</button></div></div></div>
     <div id="folderModal" class="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center p-4 z-[100] opacity-0 pointer-events-none transition-opacity duration-300 confirmation-backdrop"><div class="bg-white rounded-2xl shadow-2xl w-full max-w-sm p-6 transform scale-95 transition-transform duration-300 confirmation-content"><h4 id="folderModalTitle" class="text-lg font-bold mb-4">Ordner verwalten</h4><input type="hidden" id="folderId"><div><label for="folderName" class="sr-only">Ordnername</label><input id="folderName" type="text" required class="appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm" placeholder="Name des Ordners"></div><div class="flex justify-end gap-4 mt-6"><button id="folderCancelBtn" class="bg-white py-2 px-6 border border-gray-300 rounded-lg font-medium text-gray-700 hover:bg-gray-50">Abbrechen</button><button id="folderSaveBtn" class="py-2 px-6 border border-transparent rounded-lg font-medium text-white bg-blue-600 hover:bg-blue-700">Speichern</button></div></div></div>
     <div id="profileModal" class="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center p-4 z-[100] opacity-0 pointer-events-none transition-opacity duration-300 confirmation-backdrop">
@@ -216,6 +212,7 @@
         const cancelModalBtn = document.getElementById('cancelModalBtn');
         const savePostBtn = document.getElementById('savePostBtn');
         const deletePostBtn = document.getElementById('deletePostBtn');
+        const exportPdfBtn = document.getElementById('exportPdfBtn');
         const confirmationModal = document.getElementById('confirmationModal');
         const confirmationTitle = document.getElementById('confirmationTitle');
         const confirmationMessage = document.getElementById('confirmationMessage');
@@ -251,14 +248,48 @@
         const newCommentInput = document.getElementById('new-comment-input');
         const sendCommentBtn = document.getElementById('send-comment-btn');
         const mentionSuggestions = document.getElementById('mention-suggestions');
-        const postTypeSelect = document.getElementById('postType');
-        const postTypeFieldsContainer = document.getElementById('post-type-fields');
         const boardColumns = [{ id: 'entwurf', title: 'Entwurf' }, { id: 'freigabe', title: 'Zur Freigabe' }, { id: 'geplant', title: 'Geplant' }, { id: 'veroeffentlicht', title: 'Veröffentlicht' }];
 
         // --- HELPER FUNCTIONS ---
         const getTasksFromDOM = () => Array.from(taskListContainer.querySelectorAll('.task-item')).map(item => ({ id: item.dataset.taskId, text: item.querySelector('.task-text').value, completed: item.querySelector('.task-checkbox').checked, assignedTo: item.querySelector('.task-assignee').value }));
-        const getFormState = () => ({ title: document.getElementById('postTitle').value, caption: document.getElementById('postCaption').value, hashtags: document.getElementById('postHashtags').value, status: document.getElementById('postStatus').value, tasks: getTasksFromDOM() });
-        const hasUnsavedChanges = () => initialPostState && JSON.stringify(initialPostState) !== JSON.stringify(getFormState());
+        
+        const getFullFormState = () => {
+             const postTypeSelect = document.getElementById('postType');
+             const baseState = {
+                title: document.getElementById('postTitle').value,
+                caption: document.getElementById('postCaption').value,
+                hashtags: document.getElementById('postHashtags').value,
+                status: document.getElementById('postStatus').value,
+                tasks: getTasksFromDOM(),
+                postType: postTypeSelect ? postTypeSelect.value : 'single',
+                typeDetails: {}
+            };
+
+            if (postTypeSelect) {
+                switch (baseState.postType) {
+                    case 'reel':
+                        baseState.typeDetails = {
+                            script: document.getElementById('reel-script')?.value || ''
+                        };
+                        break;
+                    case 'carousel':
+                        const slides = Array.from(document.querySelectorAll('.carousel-slide-text')).map(textarea => ({ text: textarea.value }));
+                        baseState.typeDetails = {
+                            title: document.getElementById('carousel-title')?.value || '',
+                            slides: slides
+                        };
+                        break;
+                    case 'single':
+                        baseState.typeDetails = {
+                            text: document.getElementById('single-text')?.value || ''
+                        };
+                        break;
+                }
+            }
+            return baseState;
+        };
+
+        const hasUnsavedChanges = () => initialPostState && JSON.stringify(initialPostState) !== JSON.stringify(getFullFormState());
         
         // --- AUTHENTICATION ---
         const updateAuthUI = () => {
@@ -424,10 +455,13 @@
             confirmAction = null;
         };
         const openModal = () => {
+            const postTypeSelect = document.getElementById('postType');
             modal.classList.remove('opacity-0', 'pointer-events-none');
             modal.querySelector('.modal-content').classList.remove('scale-95');
-            updatePostTypeFields(postTypeSelect.value); // Initial render of dynamic fields
-            setTimeout(() => initialPostState = getFormState(), 200); 
+            if(postTypeSelect) {
+                updatePostTypeFields(postTypeSelect.value); // Initial render of dynamic fields
+            }
+            setTimeout(() => initialPostState = getFullFormState(), 200); 
         };
         const closeModal = () => {
             if (unsubscribeComments) unsubscribeComments();
@@ -436,6 +470,8 @@
             resetModalForm();
         };
         const resetModalForm = () => {
+            const postTypeSelect = document.getElementById('postType');
+            const postTypeFieldsContainer = document.getElementById('post-type-fields');
             document.getElementById('postId').value = '';
             document.getElementById('postDate').value = '';
             document.getElementById('postFolderId').value = '';
@@ -443,8 +479,8 @@
             document.getElementById('postCaption').value = '';
             document.getElementById('postHashtags').value = '';
             document.getElementById('postStatus').value = 'entwurf';
-            postTypeSelect.value = 'single';
-            postTypeFieldsContainer.innerHTML = '';
+            if (postTypeSelect) postTypeSelect.value = 'single';
+            if (postTypeFieldsContainer) postTypeFieldsContainer.innerHTML = '';
             taskListContainer.innerHTML = '';
             commentsContainer.innerHTML = '';
             initialPostState = null;
@@ -455,6 +491,7 @@
         };
         const fillModalForm = (post) => {
             resetModalForm();
+            const postTypeSelect = document.getElementById('postType');
             document.getElementById('postId').value = post.id;
             document.getElementById('postDate').value = post.date || '';
             document.getElementById('postFolderId').value = post.folderId || '';
@@ -462,7 +499,7 @@
             document.getElementById('postCaption').value = post.caption;
             document.getElementById('postHashtags').value = post.hashtags;
             document.getElementById('postStatus').value = post.status;
-            postTypeSelect.value = post.postType || 'single';
+            if (postTypeSelect) postTypeSelect.value = post.postType || 'single';
             
             updatePostTypeFields(post.postType || 'single', post.typeDetails);
 
@@ -643,8 +680,8 @@
 
                 ideasInFolder.forEach(idea => {
                     const ideaCard = document.createElement('div');
-                    const postTypeClass = `post-type-${idea.postType || 'single'}`;
-                    ideaCard.className = `idea-card p-2 rounded-md shadow-sm cursor-grab ${postTypeClass}`;
+                    ideaCard.className = `idea-card p-2 rounded-md shadow-sm cursor-grab bg-white`;
+                    
                     ideaCard.dataset.postId = idea.id;
                     ideaCard.draggable = true;
                     ideaCard.innerHTML = `<p class="text-sm font-medium">${idea.title || 'Ohne Titel'}</p>`;
@@ -672,7 +709,7 @@
             currentMonthYearEl.textContent = `${currentDate.toLocaleString('de-DE', { month: 'long' })} ${year}`;
             const firstDayOfMonth = new Date(year, month, 1).getDay();
             const daysInMonth = new Date(year, month + 1, 0).getDate();
-            const startDay = firstDayOfMonth === 0 ? 6 : firstDayOfMonth - 1;
+            const startDay = (firstDayOfMonth + 6) % 7;
             for (let i = 0; i < startDay; i++) { calendarGrid.innerHTML += `<div class="border border-gray-200 rounded-lg"></div>`; }
             for (let day = 1; day <= daysInMonth; day++) {
                 const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
@@ -696,8 +733,8 @@
                 postsContainer.className = 'mt-1 space-y-1 overflow-y-auto';
                 dayPosts.forEach(post => {
                     const postCard = document.createElement('div');
-                    const postTypeClass = `post-type-${post.postType || 'single'}`;
-                    postCard.className = `p-1.5 rounded-md text-xs font-semibold cursor-pointer ${postTypeClass}`;
+                    postCard.className = `p-1.5 rounded-md text-xs font-semibold cursor-pointer bg-gray-100`;
+
                     postCard.dataset.postId = post.id;
                     postCard.draggable = true;
                     postCard.addEventListener('dragstart', (e) => {
@@ -735,8 +772,8 @@
                 const cardsContainer = columnEl.querySelector('.kanban-column');
                 postsInColumn.forEach(post => {
                     const card = document.createElement('div');
-                    const postTypeClass = `post-type-${post.postType || 'single'}`;
-                    card.className = `kanban-card p-3 rounded-lg shadow-sm cursor-pointer ${postTypeClass}`;
+                    card.className = `kanban-card p-3 rounded-lg shadow-sm cursor-pointer bg-gray-50`;
+
                     card.draggable = true;
                     card.dataset.postId = post.id;
                     const tasksTotal = post.tasks?.length || 0;
@@ -899,54 +936,10 @@
 
         // --- DYNAMIC POST TYPE FIELDS ---
         const updatePostTypeFields = (type, details = {}) => {
-            postTypeFieldsContainer.innerHTML = ''; // Clear previous fields
-            switch (type) {
-                case 'reel':
-                    postTypeFieldsContainer.innerHTML = `
-                        <div><label for="reel-script" class="block text-sm font-medium text-gray-700 mb-1">Drehbuch</label><textarea id="reel-script" rows="3" class="w-full border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500" placeholder="Konzept und Ablauf des Reels...">${details.script || ''}</textarea></div>
-                        <div><label for="reel-screenplay" class="block text-sm font-medium text-gray-700 mb-1">Skript</label><textarea id="reel-screenplay" rows="3" class="w-full border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500" placeholder="Was wird gesagt?">${details.screenplay || ''}</textarea></div>
-                        <div><label for="reel-canva-link" class="block text-sm font-medium text-gray-700 mb-1">Titelbild (Canva Link)</label><input type="text" id="reel-canva-link" class="w-full border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500" placeholder="https://canva.com/..." value="${details.canvaLink || ''}"></div>
-                    `;
-                    break;
-                case 'carousel':
-                    postTypeFieldsContainer.innerHTML = `
-                        <div><label for="carousel-title" class="block text-sm font-medium text-gray-700 mb-1">Titeltext</label><input type="text" id="carousel-title" class="w-full border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500" placeholder="Titel für das Karussell" value="${details.title || ''}"></div>
-                        <div id="carousel-slides-container" class="space-y-3"></div>
-                        <button type="button" id="add-carousel-slide-btn" class="text-sm font-medium text-blue-600 hover:text-blue-500">+ Slide hinzufügen</button>
-                        <div><label for="carousel-canva-link" class="block text-sm font-medium text-gray-700 mb-1">Canva Link</label><input type="text" id="carousel-canva-link" class="w-full border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500" placeholder="https://canva.com/..." value="${details.canvaLink || ''}"></div>
-                    `;
-                    const slidesContainer = document.getElementById('carousel-slides-container');
-                    const addSlideBtn = document.getElementById('add-carousel-slide-btn');
-
-                    const addSlide = (text = '') => {
-                        const slideCount = slidesContainer.children.length + 1;
-                        const slideWrapper = document.createElement('div');
-                        slideWrapper.className = 'relative';
-                        slideWrapper.innerHTML = `
-                            <label for="carousel-slide-${slideCount}" class="block text-sm font-medium text-gray-700 mb-1">Slide ${slideCount}</label>
-                            <textarea id="carousel-slide-${slideCount}" rows="3" class="carousel-slide-text w-full border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500" placeholder="Text für Slide ${slideCount}...">${text}</textarea>
-                            <button type="button" class="remove-slide-btn absolute top-0 right-0 mt-1 mr-1 text-gray-400 hover:text-red-500 p-1">&times;</button>
-                        `;
-                        slidesContainer.appendChild(slideWrapper);
-                    };
-
-                    (details.slides || [{ text: '' }]).forEach(slide => addSlide(slide.text));
-                    addSlideBtn.addEventListener('click', () => addSlide());
-                    slidesContainer.addEventListener('click', e => {
-                        if (e.target.classList.contains('remove-slide-btn')) {
-                            e.target.parentElement.remove();
-                            slidesContainer.querySelectorAll('label').forEach((label, index) => {
-                                label.textContent = `Slide ${index + 1}`;
-                            });
-                        }
-                    });
-                    break;
-                case 'single':
-                    postTypeFieldsContainer.innerHTML = `
-                        <div><label for="single-title" class="block text-sm font-medium text-gray-700 mb-1">Titeltext</label><input type="text" id="single-title" class="w-full border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500" placeholder="Titel für das Bild" value="${details.title || ''}"></div>
-                        <div><label for="single-canva-link" class="block text-sm font-medium text-gray-700 mb-1">Canva Link</label><input type="text" id="single-canva-link" class="w-full border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500" placeholder="https://canva.com/..." value="${details.canvaLink || ''}"></div>
-                    `;
-                    break;
+            // This function is now empty as the feature is removed.
+            const postTypeFieldsContainer = document.getElementById('post-type-fields');
+            if(postTypeFieldsContainer) {
+                postTypeFieldsContainer.innerHTML = '';
             }
         };
 
@@ -954,7 +947,6 @@
         // --- EVENT LISTENERS ---
         prevMonthBtn.addEventListener('click', () => { currentDate.setMonth(currentDate.getMonth() - 1); render(); });
         nextMonthBtn.addEventListener('click', () => { currentDate.setMonth(currentDate.getMonth() + 1); render(); });
-        postTypeSelect.addEventListener('change', () => updatePostTypeFields(postTypeSelect.value));
         
         const handleCloseAttempt = () => {
             if (savePostBtn.disabled) return;
@@ -974,26 +966,9 @@
 
             try {
                 const id = document.getElementById('postId').value;
-                const postData = { 
-                    date: document.getElementById('postDate').value || null,
-                    folderId: document.getElementById('postFolderId').value || 'unassigned',
-                    ...getFormState(),
-                    postType: postTypeSelect.value,
-                    typeDetails: {}
-                };
-
-                switch (postData.postType) {
-                    case 'reel':
-                        postData.typeDetails = { script: document.getElementById('reel-script').value, screenplay: document.getElementById('reel-screenplay').value, canvaLink: document.getElementById('reel-canva-link').value };
-                        break;
-                    case 'carousel':
-                        const slides = Array.from(document.querySelectorAll('.carousel-slide-text')).map(textarea => ({ text: textarea.value }));
-                        postData.typeDetails = { title: document.getElementById('carousel-title').value, slides: slides, canvaLink: document.getElementById('carousel-canva-link').value };
-                        break;
-                    case 'single':
-                         postData.typeDetails = { title: document.getElementById('single-title').value, canvaLink: document.getElementById('single-canva-link').value };
-                        break;
-                }
+                const postData = getFullFormState();
+                postData.date = document.getElementById('postDate').value || null;
+                postData.folderId = document.getElementById('postFolderId').value || 'unassigned';
 
                 const user = auth.currentUser;
                 if (!user) throw new Error("Benutzer nicht authentifiziert");
@@ -1248,7 +1223,7 @@
                             mentionSuggestions.classList.add('hidden');
                             newCommentInput.focus();
                         };
-                        suggestionSuggestions.appendChild(suggestionEl);
+                        mentionSuggestions.appendChild(suggestionEl);
                     });
                     mentionSuggestions.classList.remove('hidden');
                 } else {
@@ -1258,9 +1233,77 @@
                 mentionSuggestions.classList.add('hidden');
             }
         });
+        
+        exportPdfBtn.addEventListener('click', () => {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+            
+            const postData = getFullFormState();
+            const postDate = document.getElementById('postDate').value;
+
+            let y = 20; // Initial Y position
+            const margin = 15;
+            const maxWidth = doc.internal.pageSize.getWidth() - 2 * margin;
+
+            // Header
+            doc.setFontSize(22);
+            doc.setFont("helvetica", "bold");
+            doc.text(`Content Plan: ${postData.title || 'Unbenannter Post'}`, margin, y);
+            y += 10;
+            
+            doc.setFontSize(12);
+            doc.setFont("helvetica", "normal");
+            doc.text(`Geplant für: ${postDate || 'Noch nicht terminiert'}`, margin, y);
+            y += 10;
+            
+            doc.setDrawColor(200);
+            doc.line(margin, y, maxWidth + margin, y);
+            y += 10;
+
+            // --- Stammdaten ---
+            doc.setFontSize(14);
+            doc.setFont("helvetica", "bold");
+            doc.text("Stammdaten", margin, y);
+            y += 7;
+            
+            doc.setFontSize(11);
+            doc.setFont("helvetica", "normal");
+            doc.text(`Status: ${postData.status}`, margin, y);
+            y += 10;
+
+            doc.line(margin, y, maxWidth + margin, y);
+            y += 10;
+
+            // --- Caption ---
+            doc.setFontSize(14); doc.setFont("helvetica", "bold"); doc.text("Caption", margin, y); y += 7;
+            doc.setFontSize(11); doc.setFont("helvetica", "normal");
+            doc.text(doc.splitTextToSize(postData.caption, maxWidth), margin, y);
+            y += doc.getTextDimensions(doc.splitTextToSize(postData.caption, maxWidth)).h + 10;
+            
+            doc.line(margin, y, maxWidth + margin, y);
+            y += 10;
+
+            // --- Hashtags ---
+            doc.setFontSize(14); doc.setFont("helvetica", "bold"); doc.text("Hashtags", margin, y); y += 7;
+            doc.setFontSize(11); doc.setFont("helvetica", "normal");
+            doc.text(postData.hashtags, margin, y);
+            y += 15;
+
+            // --- Footer ---
+            doc.line(margin, doc.internal.pageSize.getHeight() - 20, maxWidth + margin, doc.internal.pageSize.getHeight() - 20);
+            doc.setFontSize(8);
+            doc.text(`Exportiert am ${new Date().toLocaleDateString('de-DE')} aus dem Onvitec Content Planer`, margin, doc.internal.pageSize.getHeight() - 10);
+
+
+            doc.save(`Content-Plan_${postData.title.replace(/\s/g, '_')}.pdf`);
+        });
 
         // --- INITIALIZATION ---
         updateAuthUI();
+        const postTypeSelect = document.getElementById('postType');
+        if (postTypeSelect) {
+            postTypeSelect.addEventListener('change', (e) => updatePostTypeFields(e.target.value));
+        }
 
     </script>
 </body>
