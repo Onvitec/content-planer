@@ -254,39 +254,13 @@
         const getTasksFromDOM = () => Array.from(taskListContainer.querySelectorAll('.task-item')).map(item => ({ id: item.dataset.taskId, text: item.querySelector('.task-text').value, completed: item.querySelector('.task-checkbox').checked, assignedTo: item.querySelector('.task-assignee').value }));
         
         const getFullFormState = () => {
-             const postTypeSelect = document.getElementById('postType');
-             const baseState = {
+            return {
                 title: document.getElementById('postTitle').value,
                 caption: document.getElementById('postCaption').value,
                 hashtags: document.getElementById('postHashtags').value,
                 status: document.getElementById('postStatus').value,
-                tasks: getTasksFromDOM(),
-                postType: postTypeSelect ? postTypeSelect.value : 'single',
-                typeDetails: {}
+                tasks: getTasksFromDOM()
             };
-
-            if (postTypeSelect) {
-                switch (baseState.postType) {
-                    case 'reel':
-                        baseState.typeDetails = {
-                            script: document.getElementById('reel-script')?.value || ''
-                        };
-                        break;
-                    case 'carousel':
-                        const slides = Array.from(document.querySelectorAll('.carousel-slide-text')).map(textarea => ({ text: textarea.value }));
-                        baseState.typeDetails = {
-                            title: document.getElementById('carousel-title')?.value || '',
-                            slides: slides
-                        };
-                        break;
-                    case 'single':
-                        baseState.typeDetails = {
-                            text: document.getElementById('single-text')?.value || ''
-                        };
-                        break;
-                }
-            }
-            return baseState;
         };
 
         const hasUnsavedChanges = () => initialPostState && JSON.stringify(initialPostState) !== JSON.stringify(getFullFormState());
@@ -354,13 +328,13 @@
                     userGreetingEl.textContent = `Hallo!`;
                 }
 
-                const postsColRef = collection(db, 'users', user.uid, 'posts');
+                const postsColRef = collection(db, 'posts');
                 unsubscribePosts = onSnapshot(query(postsColRef), (snapshot) => {
                     localPosts = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
                     render();
                 });
 
-                const foldersColRef = collection(db, 'users', user.uid, 'folders');
+                const foldersColRef = collection(db, 'folders');
                 unsubscribeFolders = onSnapshot(query(foldersColRef), (snapshot) => {
                     localFolders = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
                     renderIdeaBank();
@@ -390,19 +364,19 @@
         const deletePost = async (postId) => {
             const user = auth.currentUser;
             if (!user || !postId) return;
-            await deleteDoc(doc(db, 'users', user.uid, 'posts', postId));
+            await deleteDoc(doc(db, 'posts', postId));
         };
 
         const updatePost = async (postId, data) => {
             const user = auth.currentUser;
             if (!user || !postId) return;
-            await setDoc(doc(db, 'users', user.uid, 'posts', postId), data, { merge: true });
+            await setDoc(doc(db, 'posts', postId), data, { merge: true });
         };
 
         const createFolder = async (name) => {
             const user = auth.currentUser;
             if (!user || !name) return;
-            await addDoc(collection(db, 'users', user.uid, 'folders'), {
+            await addDoc(collection(db, 'folders'), {
                 name: name,
                 createdAt: serverTimestamp()
             });
@@ -411,7 +385,7 @@
         const updateFolder = async (folderId, newName) => {
             const user = auth.currentUser;
             if (!user || !folderId || !newName) return;
-            await setDoc(doc(db, 'users', user.uid, 'folders', folderId), { name: newName }, { merge: true });
+            await setDoc(doc(db, 'folders', folderId), { name: newName }, { merge: true });
         };
 
         const deleteFolder = async (folderId) => {
@@ -421,18 +395,18 @@
             const batch = writeBatch(db);
             const postsToMove = localPosts.filter(p => p.folderId === folderId);
             postsToMove.forEach(post => {
-                const postRef = doc(db, 'users', user.uid, 'posts', post.id);
+                const postRef = doc(db, 'posts', post.id);
                 batch.update(postRef, { folderId: 'unassigned' });
             });
             await batch.commit();
 
-            await deleteDoc(doc(db, 'users', user.uid, 'folders', folderId));
+            await deleteDoc(doc(db, 'folders', folderId));
         };
         
         const saveComment = async (postId, commentData) => {
             const user = auth.currentUser;
             if (!user || !postId) return;
-            const commentsColRef = collection(db, 'users', user.uid, 'posts', postId, 'comments');
+            const commentsColRef = collection(db, 'posts', postId, 'comments');
             await addDoc(commentsColRef, {
                 ...commentData,
                 createdAt: serverTimestamp()
@@ -455,12 +429,8 @@
             confirmAction = null;
         };
         const openModal = () => {
-            const postTypeSelect = document.getElementById('postType');
             modal.classList.remove('opacity-0', 'pointer-events-none');
             modal.querySelector('.modal-content').classList.remove('scale-95');
-            if(postTypeSelect) {
-                updatePostTypeFields(postTypeSelect.value); // Initial render of dynamic fields
-            }
             setTimeout(() => initialPostState = getFullFormState(), 200); 
         };
         const closeModal = () => {
@@ -470,8 +440,6 @@
             resetModalForm();
         };
         const resetModalForm = () => {
-            const postTypeSelect = document.getElementById('postType');
-            const postTypeFieldsContainer = document.getElementById('post-type-fields');
             document.getElementById('postId').value = '';
             document.getElementById('postDate').value = '';
             document.getElementById('postFolderId').value = '';
@@ -479,8 +447,6 @@
             document.getElementById('postCaption').value = '';
             document.getElementById('postHashtags').value = '';
             document.getElementById('postStatus').value = 'entwurf';
-            if (postTypeSelect) postTypeSelect.value = 'single';
-            if (postTypeFieldsContainer) postTypeFieldsContainer.innerHTML = '';
             taskListContainer.innerHTML = '';
             commentsContainer.innerHTML = '';
             initialPostState = null;
@@ -491,7 +457,6 @@
         };
         const fillModalForm = (post) => {
             resetModalForm();
-            const postTypeSelect = document.getElementById('postType');
             document.getElementById('postId').value = post.id;
             document.getElementById('postDate').value = post.date || '';
             document.getElementById('postFolderId').value = post.folderId || '';
@@ -499,15 +464,12 @@
             document.getElementById('postCaption').value = post.caption;
             document.getElementById('postHashtags').value = post.hashtags;
             document.getElementById('postStatus').value = post.status;
-            if (postTypeSelect) postTypeSelect.value = post.postType || 'single';
             
-            updatePostTypeFields(post.postType || 'single', post.typeDetails);
-
             renderTasks(post.tasks || []);
 
             const user = auth.currentUser;
             if (user && post.id) {
-                const commentsColRef = collection(db, 'users', user.uid, 'posts', post.id, 'comments');
+                const commentsColRef = collection(db, 'posts', post.id, 'comments');
                 unsubscribeComments = onSnapshot(query(commentsColRef, orderBy("createdAt", "asc")), (snapshot) => {
                     const comments = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
                     renderComments(comments);
@@ -851,7 +813,7 @@
             // --- Render Mentions ---
             mentionsContainer.innerHTML = '<p class="text-gray-500">Suche nach Erwähnungen...</p>';
             const mentionPromises = localPosts.map(async (post) => {
-                const commentsColRef = collection(db, 'users', auth.currentUser.uid, 'posts', post.id, 'comments');
+                const commentsColRef = collection(db, 'posts', post.id, 'comments');
                 const snapshot = await getDocs(commentsColRef);
                 return { post, comments: snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })) };
             });
@@ -974,15 +936,15 @@
                 if (!user) throw new Error("Benutzer nicht authentifiziert");
 
                 if (id) {
-                    await setDoc(doc(db, 'users', user.uid, 'posts', id), postData, { merge: true });
+                    await setDoc(doc(db, 'posts', id), postData, { merge: true });
                 } else {
-                    const docRef = await addDoc(collection(db, 'users', user.uid, 'posts'), postData);
+                    const docRef = await addDoc(collection(db, 'posts'), postData);
                     const newPostId = docRef.id;
 
                     if (localNewComments.length > 0) {
                         const batch = writeBatch(db);
                         localNewComments.forEach(comment => {
-                            const commentRef = doc(collection(db, 'users', user.uid, 'posts', newPostId, 'comments'));
+                            const commentRef = doc(collection(db, 'posts', newPostId, 'comments'));
                             const { createdAt, ...commentData } = comment;
                             batch.set(commentRef, { ...commentData, createdAt: serverTimestamp() });
                         });
@@ -1057,7 +1019,7 @@
 
                 if (!postId || !commentId || !user) return;
 
-                const commentRef = doc(db, 'users', user.uid, 'posts', postId, 'comments', commentId);
+                const commentRef = doc(db, 'posts', postId, 'comments', commentId);
                 const commentSnap = await getDoc(commentRef);
 
                 if (commentSnap.exists()) {
